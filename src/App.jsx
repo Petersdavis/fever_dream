@@ -5,6 +5,8 @@ import Services from './pages/Services';
 import Comedians from './pages/Comedians';
 import Testimonials from './pages/Testimonials';
 import Book from './pages/Book';
+import About from './pages/About';
+import Fringe from './pages/Fringe';
 
 function App() {
   return (
@@ -13,8 +15,10 @@ function App() {
         <Route path="/" element={<MainLayout />}>
           <Route index element={<Home />} />
           <Route path="services" element={<Services />} />
+          <Route path="fringe" element={<Fringe />} />
           <Route path="comedians" element={<Comedians />} />
           <Route path="testimonials" element={<Testimonials />} />
+          <Route path="about" element={<About />} />
           <Route path="book" element={<Book />} />
         </Route>
       </Routes>

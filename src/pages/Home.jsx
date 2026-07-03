@@ -1,3 +1,5 @@
+import { Link } from 'react-router-dom';
+
 const Home = () => {
     return (
         <div className="page home">
@@ -9,6 +11,16 @@ const Home = () => {
                         Immediate credibility through the best clips in the industry.
                     </p>
                     <button className="btn btn-primary">Book Now</button>
+                </div>
+            </section>
+
+            <section className="fringe-promo-banner">
+                <div className="container">
+                    <Link to="/fringe" className="fringe-promo-link">
+                        <span className="fringe-promo-eyebrow">✨ Now Playing at Guelph Fringe Festival</span>
+                        <span className="fringe-promo-title">The Curse of <em>Girl Night</em></span>
+                        <span className="fringe-promo-cta">See the Show →</span>
+                    </Link>
                 </div>
             </section>
 

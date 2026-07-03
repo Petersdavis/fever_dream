@@ -118,7 +118,7 @@ body {
 
 .hero {
   position: relative;
-  background: linear-gradient(135deg, var(--primary-dark) 0%, var(--bg-dark) 100%);
+  background: linear-gradient(135deg, rgba(45, 27, 105, 0.75) 0%, rgba(32, 17, 91, 0.75) 100%);
   padding: 120px 0;
   text-align: center;
   overflow: hidden;
@@ -195,6 +195,64 @@ h2 {
   color: var(--text-dim);
   text-align: center;
   font-size: 0.9rem;
+}
+
+/* Fringe Promo Banner */
+.fringe-promo-banner {
+  background: linear-gradient(90deg, rgba(45, 27, 105, 0.5) 0%, rgba(75, 57, 157, 0.35) 50%, rgba(45, 27, 105, 0.5) 100%);
+  border-top: 1px solid rgba(0, 191, 165, 0.3);
+  border-bottom: 1px solid rgba(0, 191, 165, 0.3);
+  padding: 20px 0;
+}
+
+.fringe-promo-link {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  text-decoration: none;
+  color: inherit;
+  justify-content: center;
+  flex-wrap: wrap;
+  padding: 8px 0;
+  border-radius: 8px;
+  transition: filter 0.3s ease;
+}
+
+.fringe-promo-link:hover {
+  filter: brightness(1.15);
+}
+
+.fringe-promo-link:hover .fringe-promo-cta {
+  transform: translateX(4px);
+  color: var(--accent-color);
+}
+
+.fringe-promo-eyebrow {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.fringe-promo-title {
+  font-family: var(--font-logo);
+  font-size: 1.4rem;
+  color: var(--text-color);
+  letter-spacing: 1px;
+}
+
+.fringe-promo-title em {
+  font-style: normal;
+  color: var(--accent-color);
+  font-family: var(--font-accent);
+}
+
+.fringe-promo-cta {
+  font-weight: 700;
+  color: var(--accent-color);
+  font-size: 0.95rem;
+  letter-spacing: 0.5px;
+  transition: transform 0.3s ease, color 0.3s ease;
 }
 
 /* Background Bubbles */
@@ -294,4 +352,388 @@ h2 {
   100% {
     border-radius: 50% 50% 50% 50%;
   }
+}
+
+/* About Page Styles */
+.about-page {
+  padding-bottom: 80px;
+}
+
+.about-intro-section {
+  padding: 80px 0 40px;
+  text-align: center;
+}
+
+.about-intro-text {
+  font-size: 1.25rem;
+  color: var(--text-dim);
+  max-width: 800px;
+  margin: 0 auto;
+  line-height: 1.8;
+}
+
+.founders-section {
+  padding: 40px 0 80px;
+}
+
+.founders-title {
+  font-family: var(--font-logo);
+  text-align: center;
+  font-size: 2.5rem;
+  margin-bottom: 50px;
+  position: relative;
+}
+
+.founders-title::after {
+  content: '';
+  display: block;
+  width: 60px;
+  height: 4px;
+  background: var(--accent-color);
+  margin: 15px auto 0;
+  border-radius: 2px;
+}
+
+.founders-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 40px;
+}
+
+.founder-card {
+  background: var(--surface-color);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  padding: 40px;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  text-align: center;
+  transition: box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+.founder-card:hover {
+  box-shadow: 0 0 25px rgba(0, 191, 165, 0.4);
+  border-color: var(--accent-color);
+}
+
+.founder-name {
+  font-family: var(--font-logo);
+  color: var(--accent-color);
+  font-size: 1.8rem;
+  margin: 15px 0 10px;
+  letter-spacing: 0.5px;
+}
+
+.founder-img-wrapper {
+  width: 180px;
+  height: 180px;
+  margin: 0 auto 24px;
+  border-radius: 50%;
+  border: 4px solid var(--accent-color);
+  box-shadow: 8px 8px 0px var(--primary-dark);
+  background: var(--surface-color);
+  overflow: hidden;
+  transition: box-shadow 0.3s ease;
+}
+
+.founder-img-wrapper:hover {
+  box-shadow: 0 0 20px var(--accent-color);
+}
+
+.founder-headshot {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.founder-bio {
+  font-size: 0.95rem;
+  color: var(--text-color);
+  line-height: 1.6;
+  text-align: left;
+}
+
+@media (max-width: 768px) {
+  .founders-grid {
+    grid-template-columns: 1fr;
+    gap: 30px;
+  }
+  
+  .founder-card {
+    padding: 30px 20px;
+  }
+}
+
+.performers-section {
+  padding: 40px 0 80px;
+}
+
+.performers-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 30px;
+}
+
+.performer-card {
+  background: var(--surface-color);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  padding: 20px;
+  border-radius: 15px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  text-align: center;
+  transition: box-shadow 0.3s ease, border-color 0.3s ease;
+  text-decoration: none;
+  display: block;
+}
+
+.performer-card:hover {
+  box-shadow: 0 0 20px rgba(0, 191, 165, 0.4);
+  border-color: var(--accent-color);
+}
+
+.performer-name {
+  font-family: var(--font-logo);
+  color: var(--accent-color);
+  font-size: 1.2rem;
+  margin: 15px 0 5px;
+  letter-spacing: 0.5px;
+}
+
+.performer-handle {
+  color: var(--text-dim);
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+.performer-img-wrapper {
+  width: 100px;
+  height: 100px;
+  margin: 0 auto 15px;
+  border-radius: 50%;
+  border: 3px solid var(--accent-color);
+  box-shadow: 4px 4px 0px var(--primary-dark);
+  background: var(--surface-color);
+  overflow: hidden;
+  transition: box-shadow 0.3s ease;
+}
+
+.performer-card:hover .performer-img-wrapper {
+  box-shadow: 0 0 15px var(--accent-color);
+}
+
+.performer-headshot {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Services Page */
+.services-page {
+  padding-bottom: 80px;
+}
+
+.services-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 32px;
+  margin-bottom: 80px;
+}
+
+.service-card {
+  background: var(--surface-color);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  padding: 40px 36px;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  transition: box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+.service-card:hover {
+  box-shadow: 0 0 30px rgba(0, 191, 165, 0.35);
+  border-color: var(--accent-color);
+}
+
+.service-card-icon {
+  font-size: 2.4rem;
+  line-height: 1;
+}
+
+.service-card-title {
+  font-family: var(--font-logo);
+  font-size: 1.6rem;
+  color: var(--text-color);
+  margin: 0;
+  line-height: 1.2;
+}
+
+.service-card-body {
+  color: var(--text-dim);
+  font-size: 1rem;
+  line-height: 1.75;
+  flex: 1;
+  margin: 0;
+}
+
+.service-card-btn {
+  align-self: flex-start;
+  margin-top: 8px;
+}
+
+/* Booking CTA Banner */
+.services-cta-banner {
+  background: linear-gradient(135deg, rgba(45, 27, 105, 0.7) 0%, rgba(75, 57, 157, 0.5) 100%);
+  border: 1px solid rgba(0, 191, 165, 0.35);
+  border-radius: 20px;
+  padding: 48px 40px;
+  text-align: center;
+}
+
+.services-cta-label {
+  color: var(--text-dim);
+  font-size: 0.95rem;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  margin: 0 0 16px;
+}
+
+.services-cta-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.services-cta-headline {
+  font-family: var(--font-logo);
+  font-size: 2rem;
+  color: var(--text-color);
+  letter-spacing: 2px;
+}
+
+.services-cta-arrow {
+  font-size: 2rem;
+  color: var(--accent-color);
+}
+
+.services-cta-email {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--accent-color);
+  text-decoration: none;
+  border-bottom: 2px solid transparent;
+  transition: border-color 0.3s ease, color 0.3s ease;
+  word-break: break-all;
+}
+
+.services-cta-email:hover {
+  border-color: var(--accent-color);
+  color: #ffffff;
+}
+
+@media (max-width: 768px) {
+  .services-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .service-card {
+    padding: 30px 24px;
+  }
+
+  .services-cta-banner {
+    padding: 36px 24px;
+  }
+
+  .services-cta-headline {
+    font-size: 1.5rem;
+  }
+
+  .services-cta-email {
+    font-size: 1rem;
+  }
+}
+
+/* Booking Form Component */
+.booking-form-container {
+  width: 100%;
+}
+
+.booking-form-title {
+  font-family: var(--font-logo);
+  font-size: 1.6rem;
+  color: var(--text-color);
+  margin: 0 0 24px;
+}
+
+.booking-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.booking-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.booking-form-label {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text-dim);
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+}
+
+.booking-form-input {
+  padding: 12px 16px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text-color);
+  font-family: var(--font-main);
+  font-size: 0.95rem;
+  transition: border-color 0.25s ease, background 0.25s ease, box-shadow 0.25s ease;
+  outline: none;
+}
+
+.booking-form-input::placeholder {
+  color: rgba(185, 168, 245, 0.5);
+}
+
+.booking-form-input:focus {
+  border-color: var(--accent-color);
+  background: rgba(0, 191, 165, 0.06);
+  box-shadow: 0 0 0 3px rgba(0, 191, 165, 0.15);
+}
+
+.booking-form-date {
+  color-scheme: dark;
+}
+
+.booking-form-textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.booking-form-submit {
+  margin-top: 8px;
+  width: 100%;
+  justify-content: center;
+}
+
+/* Form embedded inside Services CTA banner */
+.services-cta-form {
+  margin-top: 40px;
+  max-width: 560px;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: left;
 }
