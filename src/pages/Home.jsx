@@ -45,6 +45,7 @@ const Home = () => {
                         <Link to="/comedians" className="btn btn-primary">Our Team</Link>
                         <Link to="/fringe" className="btn btn-primary">The Curse</Link>
                         <Link to="/book" className="btn btn-primary">Book Us</Link>
+                        <a href="#subscribe" className="btn btn-primary">Subscribe</a>
                     </div>
                 </div>
             </section>
