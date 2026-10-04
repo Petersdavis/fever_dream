@@ -5,7 +5,8 @@ import localFallbackEvents from '../data/events.json';
 
 export function useEvents() {
   const [events, setEvents] = useState(localFallbackEvents);
-  const [loading, setLoading] = useState(true);
+  // Default to false when local pre-fetched data is available to avoid hydration flicker
+  const [loading, setLoading] = useState(localFallbackEvents?.length ? false : true);
   const [error, setError] = useState(null);
 
   useEffect(() => {

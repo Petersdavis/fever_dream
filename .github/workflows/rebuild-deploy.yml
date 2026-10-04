@@ -1,0 +1,49 @@
+name: Weekly Event Sync & Prerender Deploy
+
+on:
+  # Automated run: every Monday morning at 06:00 UTC (02:00 EDT)
+  schedule:
+    - cron: '0 6 * * 1'
+  # Allow manual trigger anytime from GitHub Actions tab
+  workflow_dispatch:
+  # Automatically deploy on push to main
+  push:
+    branches:
+      - main
+
+jobs:
+  build_and_deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Pre-fetch latest Eventbrite events & stats
+        env:
+          EVENTBRITE_PRIVATE_TOKEN: ${{ secrets.EVENTBRITE_PRIVATE_TOKEN }}
+        run: |
+          if [ -n "$EVENTBRITE_PRIVATE_TOKEN" ]; then
+            node scripts/sync-dev-events.mjs
+          else
+            echo "EVENTBRITE_PRIVATE_TOKEN secret not set, using committed fallback data."
+          fi
+
+      - name: Build client, server, and prerender static HTML
+        run: npm run build
+
+      - name: Deploy to Firebase Hosting
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_FEVERDREAM_3BAFE }}
+          channelId: live
+          projectId: feverdream-3bafe

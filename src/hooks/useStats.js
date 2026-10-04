@@ -5,7 +5,7 @@ import localFallbackStats from '../data/stats.json';
 
 export function useStats() {
   const [stats, setStats] = useState(localFallbackStats);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(localFallbackStats ? false : true);
 
   useEffect(() => {
     let isMounted = true;

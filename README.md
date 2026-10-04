@@ -65,9 +65,22 @@ npm install
 npm run dev
 ```
 
-Build for production:
+Build for production (with static prerendering for SEO):
 ```powershell
 npm run build
 firebase deploy --only hosting
 ```
+
+---
+
+## Automated GitHub Actions (Weekly Rebuild & Prerender)
+
+The repository includes [`.github/workflows/rebuild-deploy.yml`](.github/workflows/rebuild-deploy.yml) which runs automatically every Monday (and can be triggered manually) to pull fresh Eventbrite events, prerender static HTML with updated shows/stats, and deploy to Firebase Hosting.
+
+### Required GitHub Repository Secrets:
+Go to **Settings → Secrets and variables → Actions** in your GitHub repository and add:
+
+1. `EVENTBRITE_PRIVATE_TOKEN`: Your Eventbrite private token.
+2. `FIREBASE_SERVICE_ACCOUNT_FEVERDREAM_3BAFE`: The JSON key of a Firebase Service Account with Hosting Admin permissions (generated via Google Cloud Console under IAM & Admin → Service Accounts, or running `firebase init hosting:github`).
+
 
