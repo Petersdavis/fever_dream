@@ -17,7 +17,7 @@ export default function TestimonialsBanner() {
 
   useEffect(() => {
     if (isPaused || testimonials.length <= 1) return;
-    const timer = setInterval(handleNext, 6000);
+    const timer = setInterval(handleNext, 7500);
     return () => clearInterval(timer);
   }, [isPaused, handleNext, testimonials.length]);
 
@@ -26,9 +26,11 @@ export default function TestimonialsBanner() {
   return (
     <section
       className="testimonials-stream-section"
+      id="testimonials"
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
     >
+      <span id="reviews" className="hash-anchor" aria-hidden="true" />
       <div className="container">
         <div className="testimonials-stream">
           <span className="testimonials-quote-mark" aria-hidden="true">

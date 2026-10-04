@@ -16,6 +16,27 @@ service cloud.firestore {
       allow write: if false;
     }
 
+    // Helper: authenticated users can access admin records
+    function isAdmin() {
+      return request.auth != null;
+    }
+
+    // Public newsletter subscribers: write-only for visitors, read/manage for authenticated admin
+    match /subscribers/{subscriberId} {
+      allow create, update: if request.resource.data.email is string
+                            && request.resource.data.email.size() > 3;
+      allow read, delete: if isAdmin();
+    }
+
+    // Public booking & inquiries: write-only for visitors, read/manage for authenticated admin
+    match /inquiries/{inquiryId} {
+      allow create: if request.resource.data.email is string
+                    && request.resource.data.email.size() > 3
+                    && request.resource.data.name is string
+                    && request.resource.data.name.size() > 0;
+      allow read, update, delete: if isAdmin();
+    }
+
     // Deny everything else by default.
     match /{document=**} {
       allow read, write: if false;

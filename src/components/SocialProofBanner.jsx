@@ -9,7 +9,8 @@ export default function SocialProofBanner() {
     stats?.profileUrl || 'https://www.eventbrite.com/o/fever-dream-comedy-45265374033';
 
   return (
-    <section className="social-proof-banner-section">
+    <section className="social-proof-banner-section" id="proof">
+      <span id="social-proof" className="hash-anchor" aria-hidden="true" />
       <div className="container">
         <a
           href={profileUrl}

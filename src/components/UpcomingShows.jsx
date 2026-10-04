@@ -34,6 +34,7 @@ export default function UpcomingShows({ events = [], loading = false }) {
 
   return (
     <section className="upcoming-shows-section" id="shows">
+      <span id="events" className="hash-anchor" aria-hidden="true" />
       <div className="container">
         <div className="section-header">
           <span className="eyebrow">Live Dates Across Ontario & Beyond</span>

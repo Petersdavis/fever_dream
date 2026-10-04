@@ -2,9 +2,8 @@ import { Link, NavLink } from 'react-router-dom';
 
 const Navbar = () => {
     const navItems = [
-        { name: 'Services', path: '/services' },
         { name: 'Our Comedians', path: '/comedians' },
-        { name: 'Testimonials', path: '/testimonials' },
+        { name: 'Services', path: '/services' },
         { name: 'Book', path: '/book' },
     ];
 

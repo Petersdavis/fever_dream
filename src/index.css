@@ -24,6 +24,23 @@
   box-sizing: border-box;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
+[id] {
+  scroll-margin-top: calc(var(--nav-height) + 16px);
+}
+
+.hash-anchor {
+  position: absolute;
+  top: 0;
+  left: 0;
+  visibility: hidden;
+  pointer-events: none;
+  scroll-margin-top: calc(var(--nav-height) + 16px);
+}
+
 body {
   margin: 0;
   font-family: var(--font-main);
@@ -474,7 +491,7 @@ h2 {
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
-  transition: opacity 0.4s ease, visibility 0.4s ease;
+  transition: opacity 1s ease-in-out, visibility 1s ease-in-out;
 }
 
 .testimonials-slide.active {
@@ -567,6 +584,189 @@ h2 {
 
   .testimonials-quote-text {
     font-size: 1.15rem;
+  }
+}
+
+/* Subscribe Banner Component */
+.subscribe-banner-section {
+  padding: 20px 0 80px;
+}
+
+.subscribe-banner-card {
+  background: linear-gradient(135deg, rgba(61, 43, 139, 0.7) 0%, rgba(32, 17, 91, 0.9) 100%);
+  border: 1px solid rgba(0, 191, 165, 0.35);
+  border-radius: 24px;
+  padding: 50px 40px;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+  text-align: center;
+  max-width: 860px;
+  margin: 0 auto;
+  position: relative;
+  overflow: hidden;
+}
+
+.subscribe-banner-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, var(--accent-color), transparent);
+}
+
+.subscribe-header {
+  margin-bottom: 28px;
+}
+
+.subscribe-header h2 {
+  font-family: var(--font-logo);
+  font-size: 2.2rem;
+  color: var(--text-color);
+  margin: 10px 0 12px;
+}
+
+.subscribe-header p {
+  color: var(--text-dim);
+  font-size: 1.05rem;
+  max-width: 620px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+.subscribe-form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  max-width: 560px;
+  margin: 0 auto;
+}
+
+.subscribe-input-group {
+  display: flex;
+  width: 100%;
+  gap: 10px;
+  background: rgba(255, 255, 255, 0.06);
+  padding: 6px;
+  border-radius: 50px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.subscribe-input-group:focus-within {
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 3px rgba(0, 191, 165, 0.2);
+}
+
+.subscribe-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  padding: 12px 20px;
+  color: var(--text-color);
+  font-family: var(--font-main);
+  font-size: 1rem;
+}
+
+.subscribe-input::placeholder {
+  color: rgba(185, 168, 245, 0.6);
+}
+
+.subscribe-submit-btn {
+  white-space: nowrap;
+  flex-shrink: 0;
+  padding: 12px 28px;
+}
+
+.subscribe-disclaimer {
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  opacity: 0.8;
+}
+
+.subscribe-error-msg {
+  color: #ff6b6b;
+  font-size: 0.85rem;
+  margin: 0;
+}
+
+/* Location Prompt & Success States */
+.subscribe-location-prompt,
+.subscribe-success-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.subscribe-location-icon,
+.subscribe-success-icon {
+  font-size: 3rem;
+  line-height: 1;
+}
+
+.subscribe-location-prompt h3,
+.subscribe-success-state h3 {
+  font-family: var(--font-logo);
+  font-size: 1.8rem;
+  margin: 0;
+  color: var(--text-color);
+}
+
+.subscribe-location-prompt p,
+.subscribe-success-state p {
+  color: var(--text-dim);
+  font-size: 1rem;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.subscribe-location-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 12px;
+}
+
+@media (max-width: 640px) {
+  .subscribe-banner-card {
+    padding: 36px 20px;
+  }
+
+  .subscribe-input-group {
+    flex-direction: column;
+    background: transparent;
+    border: none;
+    padding: 0;
+    gap: 12px;
+  }
+
+  .subscribe-input {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 50px;
+    width: 100%;
+  }
+
+  .subscribe-submit-btn {
+    width: 100%;
+  }
+
+  .subscribe-location-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .subscribe-location-actions .btn {
+    width: 100%;
+    text-align: center;
   }
 }
 
@@ -934,6 +1134,7 @@ h2 {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: top center;
   display: block;
 }
 

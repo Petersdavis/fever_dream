@@ -1,4 +1,6 @@
 import avatarPlaceholder from '../assets/avatar-placeholder.svg';
+import reneeHeadshot from '../assets/headshots/renee_groux.jpg';
+import lindsayHeadshot from '../assets/headshots/lindsay_endersby.jpg';
 
 const Comedians = () => {
     return (
@@ -20,7 +22,7 @@ const Comedians = () => {
                     <div className="founders-grid">
                         <div className="founder-card" id="founder-renee">
                             <div className="founder-img-wrapper">
-                                <img src={avatarPlaceholder} alt="Renee Groux Placeholder Headshot" className="founder-headshot" />
+                                <img src={reneeHeadshot} alt="Renee Groux Headshot" className="founder-headshot" />
                             </div>
                             <h3 className="founder-name">Renee Groux</h3>
                             <p className="founder-bio">
@@ -30,7 +32,7 @@ const Comedians = () => {
 
                         <div className="founder-card" id="founder-lindsay">
                             <div className="founder-img-wrapper">
-                                <img src={avatarPlaceholder} alt="Lindsay Endersby Placeholder Headshot" className="founder-headshot" />
+                                <img src={lindsayHeadshot} alt="Lindsay Endersby Headshot" className="founder-headshot" />
                             </div>
                             <h3 className="founder-name">Lindsay Endersby</h3>
                             <p className="founder-bio">
