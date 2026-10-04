@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import UpcomingShows from '../components/UpcomingShows';
 import SocialProofBanner from '../components/SocialProofBanner';
+import TestimonialsBanner from '../components/TestimonialsBanner';
 import { useEvents } from '../hooks/useEvents';
 import bestOfFestWatermark from '../assets/guelph_fringe/2026 BEST OF FEST - White.png';
 import bigBuzzWatermark from '../assets/guelph_fringe/2026 BIG BUZZ - White.png';
@@ -16,7 +17,7 @@ const Home = () => {
             <section className="hero hero-home">
                 <div className="container">
                     <h1>Fever <span className="accent-text">Dream</span></h1>
-                    <h2>Home of Girl-Night, All women comedy shows.</h2>
+                    <h2>Home of <span className="accent-text">Girl Night</span>, All-women comedy shows.</h2>
                     <p className="hero-subtext">
                         Stand-up comedy showcases and live tours across Ontario, proudly showcasing top female talent.
                     </p>
@@ -58,6 +59,8 @@ const Home = () => {
             <UpcomingShows events={events} loading={loading} />
 
             <SocialProofBanner />
+
+            <TestimonialsBanner />
 
             <section className="services-preview">
                 <div className="container">
