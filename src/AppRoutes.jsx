@@ -1,4 +1,4 @@
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, useParams } from 'react-router-dom';
 import MainLayout from './layouts/MainLayout';
 import Home from './pages/Home';
 import Services from './pages/Services';
@@ -6,11 +6,19 @@ import Comedians from './pages/Comedians';
 import Book from './pages/Book';
 import Fringe from './pages/Fringe';
 import Admin from './pages/Admin';
+import ShowDetail from './pages/ShowDetail';
+
+function LegacyShowsRedirect() {
+  const { slug } = useParams();
+  return <Navigate to={`/upcoming/${slug}`} replace />;
+}
 
 export const routes = (
   <Routes>
     <Route path="/" element={<MainLayout />}>
       <Route index element={<Home />} />
+      <Route path="upcoming/:slug" element={<ShowDetail />} />
+      <Route path="shows/:slug" element={<LegacyShowsRedirect />} />
       <Route path="services" element={<Services />} />
       <Route path="fringe" element={<Fringe />} />
       <Route path="comedians" element={<Comedians />} />

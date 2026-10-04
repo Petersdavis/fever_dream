@@ -1661,6 +1661,16 @@ h2 {
   color: var(--text-color);
 }
 
+.show-title-link {
+  color: inherit;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.show-title-link:hover {
+  color: var(--accent-color);
+}
+
 .show-card-location {
   font-size: 0.95rem;
   color: var(--text-dim);
@@ -1686,15 +1696,228 @@ h2 {
 
 .show-card-actions {
   margin-top: auto;
+  display: flex;
+  gap: 10px;
 }
 
+.show-card-details-btn,
 .show-card-cta {
-  width: 100%;
+  flex: 1;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   text-decoration: none;
   text-align: center;
+  padding: 10px 14px;
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+/* Show Detail Landing Page */
+.show-detail-page {
+  padding-bottom: 80px;
+}
+
+.show-detail-breadcrumb {
+  margin: 20px 0 24px;
+}
+
+.show-detail-back {
+  color: var(--accent-color);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.95rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.show-detail-back:hover {
+  color: #fff;
+  transform: translateX(-3px);
+}
+
+.show-detail-card {
+  background: var(--surface-color);
+  border: 1px solid rgba(0, 191, 165, 0.25);
+  border-radius: 24px;
+  padding: 40px;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
+  margin-bottom: 60px;
+}
+
+.show-detail-grid {
+  display: grid;
+  grid-template-columns: minmax(300px, 460px) 1fr;
+  gap: 48px;
+  align-items: start;
+}
+
+.show-detail-poster-wrapper {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
+  background: var(--primary-dark);
+}
+
+.show-detail-poster {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.show-detail-poster-fallback {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-logo);
+  color: var(--text-dim);
+  font-size: 1.2rem;
+}
+
+.show-detail-badge {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  background: rgba(32, 17, 91, 0.85);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--accent-color);
+  color: var(--accent-color);
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.show-detail-eyebrow {
+  display: inline-block;
+  color: var(--accent-color);
+  font-weight: 700;
+  font-size: 0.85rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+
+.show-detail-title {
+  font-family: var(--font-logo);
+  font-size: 2.2rem;
+  line-height: 1.2;
+  margin: 0 0 24px;
+  color: var(--text-color);
+  letter-spacing: 0.5px;
+}
+
+.show-detail-meta-box {
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 14px;
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.meta-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  font-size: 1rem;
+}
+
+.meta-icon {
+  font-size: 1.3rem;
+  line-height: 1;
+}
+
+.meta-sub {
+  color: var(--text-dim);
+  font-size: 0.9rem;
+  margin-top: 2px;
+}
+
+.maps-link {
+  color: var(--accent-color);
+  text-decoration: none;
+  font-weight: 600;
+  margin-left: 8px;
+  transition: color 0.2s ease;
+}
+
+.maps-link:hover {
+  color: #fff;
+}
+
+.show-detail-cta-wrapper {
+  margin-bottom: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.show-detail-primary-cta {
+  font-size: 1.05rem;
+  padding: 16px 36px;
+  text-align: center;
+  justify-content: center;
+  box-shadow: 0 6px 20px rgba(0, 191, 165, 0.4);
+}
+
+.cta-disclaimer {
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  opacity: 0.8;
+  text-align: center;
+}
+
+.show-detail-summary-box {
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding-top: 24px;
+}
+
+.show-detail-summary-box h3 {
+  font-family: var(--font-logo);
+  font-size: 1.3rem;
+  margin: 0 0 12px;
+  color: var(--text-color);
+}
+
+.show-detail-summary-box p {
+  color: rgba(255, 255, 255, 0.85);
+  line-height: 1.7;
+  font-size: 1rem;
+  margin: 0;
+}
+
+.show-detail-more-section {
+  margin-top: 40px;
+}
+
+@media (max-width: 900px) {
+  .show-detail-grid {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+
+  .show-detail-card {
+    padding: 28px 20px;
+  }
+
+  .show-detail-title {
+    font-size: 1.75rem;
+  }
 }
 
 .shows-loading,
