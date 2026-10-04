@@ -4,9 +4,12 @@ import { getAuth, connectAuthEmulator } from 'firebase/auth';
 
 const firebaseConfig = {
   projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || 'feverdream-3bafe',
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || 'demo-api-key',
-  authDomain: `${import.meta.env.VITE_FIREBASE_PROJECT_ID || 'feverdream-3bafe'}.firebaseapp.com`,
-  storageBucket: `${import.meta.env.VITE_FIREBASE_PROJECT_ID || 'feverdream-3bafe'}.firebasestorage.app`,
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || 'AIzaSyBdVwV7GeXGWrHgTGYU9Nonjww4_w7GECM',
+  authDomain: 'feverdream-3bafe.firebaseapp.com',
+  storageBucket: 'feverdream-3bafe.firebasestorage.app',
+  appId: '1:214591349114:web:27b66531f1a2af422176c3',
+  messagingSenderId: '214591349114',
+  measurementId: 'G-HXQD37BSN1',
 };
 
 const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
