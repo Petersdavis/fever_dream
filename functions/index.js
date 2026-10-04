@@ -109,7 +109,7 @@ function minTicketPrice(ticketClasses = []) {
 /**
  * Map a raw Eventbrite event to the normalized shape the website reads.
  */
-function normalizeEvent(ev) {
+function normalizeEvent(ev, descHtml = null) {
   const venue = ev.venue || {};
   const address = venue.address || {};
   const price = minTicketPrice(ev.ticket_classes);
@@ -118,6 +118,7 @@ function normalizeEvent(ev) {
     id: ev.id,
     title: ev.name?.text || 'Untitled Show',
     summary: ev.summary || '',
+    descriptionHtml: descHtml || ev.description?.html || null,
     start: ev.start?.local || null,
     startUtc: ev.start?.utc || null,
     end: ev.end?.local || null,
@@ -153,7 +154,26 @@ async function syncEventsCore(token) {
     return createdTime >= cutoffMs;
   });
 
-  const normalized = recentEvents.map(normalizeEvent);
+  // Concurrently fetch full rich descriptions for each live show
+  const descriptions = await Promise.all(
+    recentEvents.map(async (ev) => {
+      try {
+        const descRes = await fetch(`${API_BASE}/events/${ev.id}/description/`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (descRes.ok) {
+          const d = await descRes.json();
+          return { id: ev.id, html: d.description || null };
+        }
+      } catch (err) {
+        logger.warn(`Could not fetch description for ${ev.id}:`, err);
+      }
+      return { id: ev.id, html: null };
+    })
+  );
+
+  const descMap = new Map(descriptions.map((d) => [d.id, d.html]));
+  const normalized = recentEvents.map((ev) => normalizeEvent(ev, descMap.get(ev.id)));
   const liveIds = new Set(normalized.map((e) => e.id));
 
   const batch = db.batch();

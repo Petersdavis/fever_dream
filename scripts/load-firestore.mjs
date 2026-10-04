@@ -34,7 +34,7 @@ function minTicketPrice(ticketClasses = []) {
   };
 }
 
-function normalizeEvent(ev) {
+function normalizeEvent(ev, descHtml = null) {
   const venue = ev.venue || {};
   const address = venue.address || {};
   const price = minTicketPrice(ev.ticket_classes);
@@ -43,6 +43,7 @@ function normalizeEvent(ev) {
     id: ev.id,
     title: ev.name?.text || 'Untitled Show',
     summary: ev.summary || '',
+    descriptionHtml: descHtml || ev.description?.html || null,
     start: ev.start?.local || null,
     startUtc: ev.start?.utc || null,
     end: ev.end?.local || null,
@@ -150,7 +151,26 @@ async function run() {
     return new Date(ev.created).getTime() >= cutoffMs;
   });
 
-  const normalized = recent.map(normalizeEvent);
+  console.log(`Fetching full rich descriptions for ${recent.length} live shows...`);
+  const descriptions = await Promise.all(
+    recent.map(async (ev) => {
+      try {
+        const descRes = await fetch(`${API_BASE}/events/${ev.id}/description/`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (descRes.ok) {
+          const d = await descRes.json();
+          return { id: ev.id, html: d.description || null };
+        }
+      } catch (err) {
+        console.warn(`Could not fetch description for ${ev.id}:`, err.message);
+      }
+      return { id: ev.id, html: null };
+    })
+  );
+
+  const descMap = new Map(descriptions.map((d) => [d.id, d.html]));
+  const normalized = recent.map((ev) => normalizeEvent(ev, descMap.get(ev.id)));
   console.log(`Uploading ${normalized.length} events to Firestore collection 'events'...`);
 
   const batch = db.batch();

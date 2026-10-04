@@ -76,9 +76,17 @@ export default function ShowDetail() {
         </div>
 
         <article className="show-detail-card">
+          {/* Full-width Title Header */}
+          <header className="show-detail-header">
+            <div className="show-detail-eyebrow">
+              {event.venueCity ? `Live in ${event.venueCity}` : 'Live Stand-Up Comedy'}
+            </div>
+            <h1 className="show-detail-title">{event.title}</h1>
+          </header>
+
           <div className="show-detail-grid">
-            {/* Poster Column */}
-            <div className="show-detail-poster-col">
+            {/* Column 1: Poster + Event Details Section */}
+            <div className="show-detail-left-col">
               <div className="show-detail-poster-wrapper">
                 {event.posterUrl ? (
                   <img
@@ -95,17 +103,8 @@ export default function ShowDetail() {
                   <span className="show-detail-badge">From {event.priceFrom}</span>
                 )}
               </div>
-            </div>
 
-            {/* Info Column */}
-            <div className="show-detail-info-col">
-              <div className="show-detail-eyebrow">
-                {event.venueCity ? `Live in ${event.venueCity}` : 'Live Stand-Up Comedy'}
-              </div>
-
-              <h1 className="show-detail-title">{event.title}</h1>
-
-              {/* Key Event Metadata */}
+              {/* Key Event Metadata / Details */}
               <div className="show-detail-meta-box">
                 <div className="meta-row">
                   <span className="meta-icon" aria-hidden="true">📅</span>
@@ -147,7 +146,10 @@ export default function ShowDetail() {
                   </div>
                 )}
               </div>
+            </div>
 
+            {/* Column 2: Ticket CTA + Rich Description */}
+            <div className="show-detail-right-col">
               {/* Primary Ticket CTA */}
               <div className="show-detail-cta-wrapper">
                 <a
@@ -164,12 +166,20 @@ export default function ShowDetail() {
               </div>
 
               {/* Event Description / Summary */}
-              {event.summary && (
+              {event.descriptionHtml ? (
+                <div className="show-detail-summary-box">
+                  <h3>About This Show</h3>
+                  <div
+                    className="show-detail-description"
+                    dangerouslySetInnerHTML={{ __html: event.descriptionHtml }}
+                  />
+                </div>
+              ) : event.summary ? (
                 <div className="show-detail-summary-box">
                   <h3>About This Show</h3>
                   <p>{event.summary}</p>
                 </div>
-              )}
+              ) : null}
             </div>
           </div>
         </article>
