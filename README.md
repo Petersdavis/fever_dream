@@ -1,16 +1,73 @@
-# React + Vite
+# Fever Dream Comedy
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Website and backend synchronization services for Fever Dream Comedy. Built with React (Vite), Firebase Hosting, Cloud Functions, and Firestore.
 
-Currently, two official plugins are available:
+## Prerequisites & Tooling Setup
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+### 1. Google Cloud CLI (`gcloud`)
+To install the Google Cloud SDK on Windows via `winget`:
 
-## React Compiler
+```powershell
+winget install Google.CloudSDK
+```
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+> **Note:** After installation completes, restart your PowerShell terminal for `gcloud` to be available in your PATH.
 
-## Expanding the ESLint configuration
+Authenticate and set the active project:
+```powershell
+gcloud auth login
+gcloud config set project feverdream-3bafe
+```
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+### 2. Firebase CLI
+Firebase CLI is used for hosting, rules, and Cloud Functions management:
+
+```powershell
+npm install -g firebase-tools
+firebase login
+firebase use feverdream-3bafe
+```
+
+---
+
+## Eventbrite Synchronization & Cloud Functions
+
+The backend pulls upcoming shows and posters from Eventbrite into Firestore on a daily schedule.
+
+### 1. Store the Eventbrite Secret
+Set your Eventbrite private token in Cloud Secret Manager:
+
+```powershell
+firebase functions:secrets:set EVENTBRITE_PRIVATE_TOKEN
+```
+*(Paste the private token when prompted)*
+
+### 2. Deploy Firestore Rules and Functions
+```powershell
+firebase deploy --only firestore:rules,functions
+```
+
+### 3. Trigger Manual Sync (Optional)
+To test or populate Firestore immediately after deploy:
+```powershell
+# Replace with the deployed function URL displayed in deployment output:
+Invoke-RestMethod "https://us-central1-feverdream-3bafe.cloudfunctions.net/syncEventsNow?key=<YOUR_EVENTBRITE_PRIVATE_TOKEN>"
+```
+
+---
+
+## Local Frontend Development
+
+Install frontend dependencies and start Vite dev server:
+
+```powershell
+npm install
+npm run dev
+```
+
+Build for production:
+```powershell
+npm run build
+firebase deploy --only hosting
+```
+
