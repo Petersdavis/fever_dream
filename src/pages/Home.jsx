@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import UpcomingShows from '../components/UpcomingShows';
+import SocialProofBanner from '../components/SocialProofBanner';
 import { useEvents } from '../hooks/useEvents';
 import bestOfFestWatermark from '../assets/guelph_fringe/2026 BEST OF FEST - White.png';
 import bigBuzzWatermark from '../assets/guelph_fringe/2026 BIG BUZZ - White.png';
@@ -21,7 +22,7 @@ const Home = () => {
                     </p>
                     <div className="hero-cta-stack">
                         <a href="#shows" className="btn btn-primary">Upcoming Events</a>
-                        <Link to="/comedians" className="btn btn-primary">Our Roster</Link>
+                        <Link to="/comedians" className="btn btn-primary">Our Team</Link>
                         <Link to="/fringe" className="btn btn-primary">The Curse</Link>
                         <Link to="/testimonials" className="btn btn-primary">Testimonials</Link>
                     </div>
@@ -56,11 +57,7 @@ const Home = () => {
 
             <UpcomingShows events={events} loading={loading} />
 
-            <section className="trust-badges">
-                <div className="container">
-                    <h2>Featured in [Media] | Serving [X] Companies</h2>
-                </div>
-            </section>
+            <SocialProofBanner />
 
             <section className="services-preview">
                 <div className="container">

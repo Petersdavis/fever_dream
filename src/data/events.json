@@ -19,7 +19,7 @@
     "isFree": false,
     "createdAt": "2026-08-17T14:42:05Z",
     "source": "eventbrite",
-    "updatedAt": "2026-10-04T13:58:01.093Z"
+    "updatedAt": "2026-10-04T15:13:20.228Z"
   },
   {
     "id": "1998224107095",
@@ -41,7 +41,7 @@
     "isFree": false,
     "createdAt": "2026-08-17T14:42:05Z",
     "source": "eventbrite",
-    "updatedAt": "2026-10-04T13:58:01.094Z"
+    "updatedAt": "2026-10-04T15:13:20.228Z"
   },
   {
     "id": "1998224954630",
@@ -63,7 +63,7 @@
     "isFree": false,
     "createdAt": "2026-08-17T14:49:50Z",
     "source": "eventbrite",
-    "updatedAt": "2026-10-04T13:58:01.094Z"
+    "updatedAt": "2026-10-04T15:13:20.228Z"
   },
   {
     "id": "1998237504166",
@@ -85,7 +85,7 @@
     "isFree": false,
     "createdAt": "2026-08-17T16:09:34Z",
     "source": "eventbrite",
-    "updatedAt": "2026-10-04T13:58:01.094Z"
+    "updatedAt": "2026-10-04T15:13:20.228Z"
   },
   {
     "id": "1998237505169",
@@ -107,7 +107,7 @@
     "isFree": false,
     "createdAt": "2026-08-17T16:09:34Z",
     "source": "eventbrite",
-    "updatedAt": "2026-10-04T13:58:01.094Z"
+    "updatedAt": "2026-10-04T15:13:20.228Z"
   },
   {
     "id": "1998376823875",
@@ -129,7 +129,7 @@
     "isFree": false,
     "createdAt": "2026-08-18T16:38:18Z",
     "source": "eventbrite",
-    "updatedAt": "2026-10-04T13:58:01.094Z"
+    "updatedAt": "2026-10-04T15:13:20.228Z"
   },
   {
     "id": "1998439152301",
@@ -151,7 +151,7 @@
     "isFree": false,
     "createdAt": "2026-08-19T17:58:13Z",
     "source": "eventbrite",
-    "updatedAt": "2026-10-04T13:58:01.094Z"
+    "updatedAt": "2026-10-04T15:13:20.228Z"
   },
   {
     "id": "1998439153304",
@@ -173,7 +173,7 @@
     "isFree": false,
     "createdAt": "2026-08-19T17:58:13Z",
     "source": "eventbrite",
-    "updatedAt": "2026-10-04T13:58:01.094Z"
+    "updatedAt": "2026-10-04T15:13:20.228Z"
   },
   {
     "id": "1998243744832",
@@ -195,7 +195,7 @@
     "isFree": false,
     "createdAt": "2026-08-17T16:16:41Z",
     "source": "eventbrite",
-    "updatedAt": "2026-10-04T13:58:01.094Z"
+    "updatedAt": "2026-10-04T15:13:20.228Z"
   },
   {
     "id": "2002072302150",
@@ -217,7 +217,7 @@
     "isFree": false,
     "createdAt": "2026-09-22T14:59:11Z",
     "source": "eventbrite",
-    "updatedAt": "2026-10-04T13:58:01.094Z"
+    "updatedAt": "2026-10-04T15:13:20.228Z"
   },
   {
     "id": "1998244664583",
@@ -239,6 +239,6 @@
     "isFree": false,
     "createdAt": "2026-08-17T16:27:19Z",
     "source": "eventbrite",
-    "updatedAt": "2026-10-04T13:58:01.094Z"
+    "updatedAt": "2026-10-04T15:13:20.228Z"
   }
 ]

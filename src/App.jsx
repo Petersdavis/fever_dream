@@ -1,11 +1,10 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import MainLayout from './layouts/MainLayout';
 import Home from './pages/Home';
 import Services from './pages/Services';
 import Comedians from './pages/Comedians';
 import Testimonials from './pages/Testimonials';
 import Book from './pages/Book';
-import About from './pages/About';
 import Fringe from './pages/Fringe';
 
 function App() {
@@ -18,7 +17,7 @@ function App() {
           <Route path="fringe" element={<Fringe />} />
           <Route path="comedians" element={<Comedians />} />
           <Route path="testimonials" element={<Testimonials />} />
-          <Route path="about" element={<About />} />
+          <Route path="about" element={<Navigate to="/comedians" replace />} />
           <Route path="book" element={<Book />} />
         </Route>
       </Routes>

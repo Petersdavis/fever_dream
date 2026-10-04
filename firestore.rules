@@ -10,6 +10,12 @@ service cloud.firestore {
       allow write: if false;
     }
 
+    // Public organizer stats/metrics are read-only to the world.
+    match /stats/{statId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
     // Deny everything else by default.
     match /{document=**} {
       allow read, write: if false;

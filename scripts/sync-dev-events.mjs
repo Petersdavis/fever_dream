@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 const ORGANIZATION_ID = '906905779983';
+const ORGANIZER_PROFILE_URL = 'https://www.eventbrite.com/o/fever-dream-comedy-45265374033';
 const API_BASE = 'https://www.eventbriteapi.com/v3';
 const MAX_EVENT_AGE_DAYS = 180;
 
@@ -103,6 +104,41 @@ async function syncDev() {
   fs.writeFileSync(outFile, JSON.stringify(normalized, null, 2), 'utf8');
 
   console.log(`Successfully synced ${normalized.length} events to ${outFile}`);
+
+  console.log('Fetching verified organizer stats from Eventbrite...');
+  try {
+    const orgRes = await fetch(ORGANIZER_PROFILE_URL, {
+      headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)' },
+    });
+    if (orgRes.ok) {
+      const html = await orgRes.text();
+      const marker = '<script id="__NEXT_DATA__" type="application/json">';
+      const start = html.indexOf(marker);
+      if (start !== -1) {
+        const end = html.indexOf('</script>', start);
+        const raw = html.slice(start + marker.length, end);
+        const parsed = JSON.parse(raw);
+        const organizer = parsed.props?.pageProps?.organizer;
+        if (organizer?.metrics) {
+          const stats = {
+            organizerName: organizer.name || 'Fever Dream Comedy',
+            profileUrl: ORGANIZER_PROFILE_URL,
+            followers: organizer.metrics.followers || '198',
+            hostingYears: organizer.metrics.hostingYears || '4 years',
+            totalEvents: organizer.metrics.totalEvents || 109,
+            attendeesHosted: organizer.metrics.attendeesHosted || '2.4k',
+            avatarUrl: organizer.avatarUrl || null,
+            updatedAt: new Date().toISOString(),
+          };
+          const statsFile = path.join(outDir, 'stats.json');
+          fs.writeFileSync(statsFile, JSON.stringify(stats, null, 2), 'utf8');
+          console.log(`Successfully saved organizer stats to ${statsFile}`);
+        }
+      }
+    }
+  } catch (err) {
+    console.warn('Could not sync organizer stats:', err.message);
+  }
 }
 
 syncDev();

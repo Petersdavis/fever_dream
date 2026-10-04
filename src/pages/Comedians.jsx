@@ -1,27 +1,68 @@
+import avatarPlaceholder from '../assets/avatar-placeholder.svg';
+
 const Comedians = () => {
     return (
-        <div className="page comedians">
+        <div className="page comedians about-page">
             <section className="hero" style={{ padding: '80px 0' }}>
                 <div className="container">
-                    <h1>Our <span className="accent-text">Comedians</span></h1>
-                    <h2>World-class talent for world-class events</h2>
+                    <h1>Our <span className="accent-text">Team</span></h1>
+                    <h2>Rooted in Joy & Celebrating Alternative Voices</h2>
+                    <p className="about-intro-text">
+                        Fever Dream Comedy is a comedy partnership between Lindsay Endersby and Renee Groux. Born in Kitchener-Waterloo in 2022, Fever Dream Comedy is dedicated to bringing audiences a comedy experience rooted in joy that celebrates alternative voices. We blend top acts with niche underdogs to break down the barriers between women comedy performers and the audiences who seek them. Our talented comedians deliver smart, unique, and unforgettable shows that bring women together as a community.
+                    </p>
                 </div>
             </section>
 
-            <div className="container" style={{ padding: '80px 0' }}>
-                <div className="filters" style={{ marginBottom: '40px', textAlign: 'center' }}>
-                    <p style={{ color: 'var(--text-dim)' }}>[ Filterable roster by style or industry ]</p>
-                </div>
+            <section className="founders-section" id="founders">
+                <div className="container">
+                    <h2 className="founders-title">The Producers</h2>
 
-                <div className="comedians-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '30px' }}>
-                    <div className="comedian-card" style={{ background: 'var(--surface-color)', padding: '30px', borderRadius: '15px', border: '1px solid rgba(255,255,255,0.1)', textAlign: 'center' }}>
-                        <div style={{ width: '100px', height: '100px', background: 'var(--primary-dark)', borderRadius: '50%', margin: '0 auto 20px' }}></div>
-                        <h3 className="accent-text">Talent Name</h3>
-                        <p style={{ fontSize: '0.9rem', color: 'var(--text-dim)' }}>[ Professional clips & credits ]</p>
-                        <p style={{ fontStyle: 'italic', marginTop: '15px' }}>"Brilliant performance, exactly what we needed!"</p>
+                    <div className="founders-grid">
+                        <div className="founder-card" id="founder-renee">
+                            <div className="founder-img-wrapper">
+                                <img src={avatarPlaceholder} alt="Renee Groux Placeholder Headshot" className="founder-headshot" />
+                            </div>
+                            <h3 className="founder-name">Renee Groux</h3>
+                            <p className="founder-bio">
+                                Renee Groux is a stand-up comedian from Kitchener-Waterloo with 10 years of performing experience. A smart and skilled storyteller, Renee will serve up side-splitting insights on love, work, parenting, and more. She has appeared on Don't Tell Comedy, Guelph Comedy Festival, and the 2022 Edinburgh Fringe Festival. She is the co-producer and host of Fever Dream Comedy, running Kitchener's longest-running all-women showcase, Girl Night. Her debut comedy album, "We're Not Friends" can be heard on SiriusXM - watch the full special on Youtube.
+                            </p>
+                        </div>
+
+                        <div className="founder-card" id="founder-lindsay">
+                            <div className="founder-img-wrapper">
+                                <img src={avatarPlaceholder} alt="Lindsay Endersby Placeholder Headshot" className="founder-headshot" />
+                            </div>
+                            <h3 className="founder-name">Lindsay Endersby</h3>
+                            <p className="founder-bio">
+                                Lindsay Endersby is a stand-up comedian who has spent 8 years performing hilarious stand-up and producing transformative comedy experiences. Sharp, sardonic, witty, and lovable, Lindsay’s comedy pulls no punches and cuts to the bone. As seen on Don’t Tell Comedy, Toronto’s legendary Comedy Bar and Levity Comedy Club. She is the co-producer and host of Fever Dream Comedy, running Kitchener's longest-running all-women showcase, Girl Night.
+                            </p>
+                        </div>
                     </div>
                 </div>
-            </div>
+            </section>
+
+            <section className="performers-section" id="performers">
+                <div className="container">
+                    <h2 className="founders-title" style={{ marginTop: '40px' }}>Featured Performers</h2>
+
+                    <div className="performers-grid">
+                        {[
+                            { name: "Comedian One", handle: "@comedian_one" },
+                            { name: "Comedian Two", handle: "@comedian_two" },
+                            { name: "Comedian Three", handle: "@comedian_three" },
+                            { name: "Comedian Four", handle: "@comedian_four" }
+                        ].map((performer, index) => (
+                            <a href={`https://instagram.com/${performer.handle.substring(1)}`} target="_blank" rel="noopener noreferrer" className="performer-card" key={index}>
+                                <div className="performer-img-wrapper">
+                                    <img src={avatarPlaceholder} alt={performer.name} className="performer-headshot" />
+                                </div>
+                                <h4 className="performer-name">{performer.name}</h4>
+                                <p className="performer-handle">{performer.handle}</p>
+                            </a>
+                        ))}
+                    </div>
+                </div>
+            </section>
         </div>
     );
 };
