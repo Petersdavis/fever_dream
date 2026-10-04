@@ -25,6 +25,14 @@ const Comedians = () => {
                                 <img src={reneeHeadshot} alt="Renee Groux Headshot" className="founder-headshot" />
                             </div>
                             <h3 className="founder-name">Renee Groux</h3>
+                            <div className="founder-socials">
+                                <a href="https://www.instagram.com/reneegroux/" target="_blank" rel="noopener noreferrer" className="founder-social-link" title="Renee Groux Instagram">
+                                    Instagram ↗
+                                </a>
+                                <a href="https://www.youtube.com/@ReneeGroux" target="_blank" rel="noopener noreferrer" className="founder-social-link" title="Renee Groux YouTube">
+                                    YouTube ↗
+                                </a>
+                            </div>
                             <p className="founder-bio">
                                 Renee Groux is a stand-up comedian from Kitchener-Waterloo with 10 years of performing experience. A smart and skilled storyteller, Renee will serve up side-splitting insights on love, work, parenting, and more. She has appeared on Don't Tell Comedy, Guelph Comedy Festival, and the 2022 Edinburgh Fringe Festival. She is the co-producer and host of Fever Dream Comedy, running Kitchener's longest-running all-women showcase, Girl Night. Her debut comedy album, "We're Not Friends" can be heard on SiriusXM - watch the full special on Youtube.
                             </p>
@@ -35,6 +43,11 @@ const Comedians = () => {
                                 <img src={lindsayHeadshot} alt="Lindsay Endersby Headshot" className="founder-headshot" />
                             </div>
                             <h3 className="founder-name">Lindsay Endersby</h3>
+                            <div className="founder-socials">
+                                <a href="https://www.instagram.com/lindsayendersby/" target="_blank" rel="noopener noreferrer" className="founder-social-link" title="Lindsay Endersby Instagram">
+                                    Instagram ↗
+                                </a>
+                            </div>
                             <p className="founder-bio">
                                 Lindsay Endersby is a stand-up comedian who has spent 8 years performing hilarious stand-up and producing transformative comedy experiences. Sharp, sardonic, witty, and lovable, Lindsay’s comedy pulls no punches and cuts to the bone. As seen on Don’t Tell Comedy, Toronto’s legendary Comedy Bar and Levity Comedy Club. She is the co-producer and host of Fever Dream Comedy, running Kitchener's longest-running all-women showcase, Girl Night.
                             </p>

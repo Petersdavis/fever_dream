@@ -771,12 +771,115 @@ h2 {
 }
 
 .footer {
-  padding: 40px 0;
+  padding: 50px 0 30px;
   background: var(--primary-dark);
   border-top: 1px solid rgba(255, 255, 255, 0.1);
   color: var(--text-dim);
-  text-align: center;
   font-size: 0.9rem;
+}
+
+.footer-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 20px;
+}
+
+.footer-logo {
+  font-family: var(--font-logo);
+  color: var(--text-color);
+  font-size: 1.3rem;
+  letter-spacing: 0.5px;
+}
+
+.footer-tagline {
+  margin: 6px 0 0;
+  color: var(--text-dim);
+  font-size: 0.9rem;
+}
+
+.footer-tagline em {
+  color: var(--accent-color);
+  font-style: normal;
+  font-family: var(--font-accent);
+}
+
+.footer-socials {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.footer-socials-label {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-dim);
+  font-weight: 600;
+}
+
+.footer-social-links {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.footer-social-link {
+  color: var(--accent-color);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: color 0.2s ease, transform 0.2s ease;
+  padding: 4px 10px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(0, 191, 165, 0.2);
+}
+
+.footer-social-link:hover {
+  color: #fff;
+  border-color: var(--accent-color);
+  transform: translateY(-2px);
+}
+
+.footer-bottom {
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  width: 100%;
+  padding-top: 20px;
+  margin-top: 10px;
+}
+
+.footer-bottom p {
+  margin: 0;
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.founder-socials {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin: 4px 0 16px;
+}
+
+.founder-social-link {
+  font-size: 0.82rem;
+  color: var(--accent-color);
+  text-decoration: none;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: rgba(0, 191, 165, 0.1);
+  border: 1px solid rgba(0, 191, 165, 0.3);
+  transition: all 0.2s ease;
+}
+
+.founder-social-link:hover {
+  background: var(--accent-color);
+  color: var(--bg-dark);
 }
 
 /* Fringe Promo Banner */

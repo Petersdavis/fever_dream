@@ -80,20 +80,53 @@ async function prerender() {
     // Generate JSON-LD Structured Data for LocalBusiness & PerformingGroup
     const structuredData = {
       '@context': 'https://schema.org',
-      '@type': 'PerformingGroup',
-      name: 'Fever Dream Comedy',
-      alternateName: 'Girl Night Comedy',
-      url: SITE_ORIGIN,
-      description: route.description,
-      image: route.image,
-      sameAs: [
-        'https://www.eventbrite.com/o/fever-dream-comedy-45265374033',
+      '@graph': [
+        {
+          '@type': 'PerformingGroup',
+          '@id': `${SITE_ORIGIN}/#organization`,
+          name: 'Fever Dream Comedy',
+          alternateName: ['Girl Night Comedy', 'Fever Dream Comedy KW'],
+          url: SITE_ORIGIN,
+          description: route.description,
+          image: route.image,
+          sameAs: [
+            'https://www.facebook.com/feverdreamcomedy/',
+            'https://www.instagram.com/feverdreamcomedyshow/',
+            'https://www.eventbrite.com/o/fever-dream-comedy-45265374033',
+          ],
+          areaServed: {
+            '@type': 'AdministrativeArea',
+            name: 'Ontario, Canada',
+          },
+          genre: ['Stand-up comedy', 'Sketch comedy', 'Live Entertainment'],
+          founder: [
+            {
+              '@type': 'Person',
+              name: 'Renee Groux',
+              jobTitle: 'Co-Producer & Comedian',
+              sameAs: [
+                'https://www.youtube.com/@ReneeGroux',
+                'https://www.instagram.com/reneegroux/',
+              ],
+            },
+            {
+              '@type': 'Person',
+              name: 'Lindsay Endersby',
+              jobTitle: 'Co-Producer & Comedian',
+              sameAs: [
+                'https://www.instagram.com/lindsayendersby/',
+              ],
+            },
+          ],
+        },
+        {
+          '@type': 'WebSite',
+          '@id': `${SITE_ORIGIN}/#website`,
+          url: SITE_ORIGIN,
+          name: 'Fever Dream Comedy',
+          publisher: { '@id': `${SITE_ORIGIN}/#organization` },
+        },
       ],
-      areaServed: {
-        '@type': 'AdministrativeArea',
-        name: 'Ontario, Canada',
-      },
-      genre: 'Stand-up comedy',
     };
 
     const metaTags = `<title>${route.title}</title>
