@@ -2,32 +2,46 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 
-// Define the static routes and SEO metadata to prerender
+const SITE_ORIGIN = 'https://feverdream-3bafe.web.app';
+const DEFAULT_IMAGE =
+  'https://img.evbuc.com/https%3A%2F%2Fcdn.evbuc.com%2Fimages%2F1191270488%2F298565748212%2F1%2Foriginal.20260817-185714?auto=format%2Ccompress&q=75&sharp=10&s=b7260001d6f9577e02f8c9ed7c09b157';
+
+// Define the static routes, rich SEO keywords, and metadata to prerender
 const ROUTES = [
   {
     path: '/',
-    title: 'Fever Dream Comedy | Live All-Women Stand-Up Shows in Ontario',
-    description: 'Home of Girl Night, Ontario\'s premier all-women stand-up comedy showcases, tours, and award-winning live entertainment.',
+    title: 'Fever Dream Comedy | Live All-Women Stand-Up Comedy in Ontario',
+    description: 'Home of Girl Night, Ontario\'s premier all-women stand-up comedy showcases, tours, and award-winning live comedy shows across Kitchener, Waterloo, Guelph, and beyond.',
+    keywords: 'stand-up comedy Ontario, women comedy show, all-women stand-up, Girl Night comedy, comedy shows Kitchener, live comedy Guelph, comedy tour Ontario, Fever Dream Comedy',
+    image: DEFAULT_IMAGE,
   },
   {
     path: '/comedians',
     title: 'Our Team & Comedians | Fever Dream Comedy',
-    description: 'Meet the producers, founders, and featured stand-up comedians of Fever Dream Comedy and Girl Night.',
+    description: 'Meet the producers, founders, and featured stand-up comedians behind Fever Dream Comedy and Girl Night, featuring Renee Groux and Lindsay Endersby.',
+    keywords: 'female comedians Ontario, women stand-up comics, Renee Groux, Lindsay Endersby, Girl Night producers, KW comedians, comedy talent roster',
+    image: DEFAULT_IMAGE,
   },
   {
     path: '/services',
-    title: 'Live Comedy Booking & Services | Fever Dream Comedy',
-    description: 'Book Girl Night on Tour, private events, corporate showcases, or custom comedy productions across Ontario.',
+    title: 'Live Comedy Booking & Private Events | Fever Dream Comedy',
+    description: 'Book Girl Night on Tour, private parties, corporate events, fundraisers, and venue comedy nights tailored to your space.',
+    keywords: 'hire comedians Ontario, book comedy show, corporate comedy entertainment, venue comedy night, private party comedians, bachelorette comedy show',
+    image: DEFAULT_IMAGE,
   },
   {
     path: '/fringe',
     title: 'The Curse of Girl Night | Award-Winning Comedy Show',
-    description: 'Winner of "Best of Fest" and "Big Buzz" awards at the 2026 Guelph Fringe Festival. Book this acclaimed sketch & stand-up show.',
+    description: 'Winner of "Best of Fest" and "Big Buzz" awards at the 2026 Guelph Fringe Festival. An original sketch and stand-up production by Fever Dream Comedy.',
+    keywords: 'The Curse of Girl Night, Guelph Fringe Festival 2026, Best of Fest winner, Big Buzz award, comedy sketch show, fringe festival comedy',
+    image: 'https://static.wixstatic.com/media/5bbf7f_0cc0f3f9100d4083b6dcbf17e6d4f046~mv2.png/v1/fill/w_581,h_320,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/Love%20So%20Far%20Poster%20-%201200x675_PNG.png',
   },
   {
     path: '/book',
-    title: 'Book Fever Dream Comedy | Event Inquiries',
-    description: 'Bring an unforgettable all-women comedy night to your venue, corporate function, or festival.',
+    title: 'Book a Show / Inquire | Fever Dream Comedy',
+    description: 'Bring an unforgettable all-women stand-up comedy show to your venue or event. Send an inquiry directly to the Fever Dream team.',
+    keywords: 'book a comedy show, comedy event inquiry, contact Fever Dream Comedy, comedy bookings Kitchener Waterloo',
+    image: DEFAULT_IMAGE,
   },
 ];
 
@@ -61,14 +75,56 @@ async function prerender() {
       `<div id="root">${appHtml}</div>`
     );
 
+    const canonicalUrl = `${SITE_ORIGIN}${route.path === '/' ? '/' : route.path}`;
+
+    // Generate JSON-LD Structured Data for LocalBusiness & PerformingGroup
+    const structuredData = {
+      '@context': 'https://schema.org',
+      '@type': 'PerformingGroup',
+      name: 'Fever Dream Comedy',
+      alternateName: 'Girl Night Comedy',
+      url: SITE_ORIGIN,
+      description: route.description,
+      image: route.image,
+      sameAs: [
+        'https://www.eventbrite.com/o/fever-dream-comedy-45265374033',
+      ],
+      areaServed: {
+        '@type': 'AdministrativeArea',
+        name: 'Ontario, Canada',
+      },
+      genre: 'Stand-up comedy',
+    };
+
+    const metaTags = `<title>${route.title}</title>
+    <meta name="description" content="${route.description}" />
+    <meta name="keywords" content="${route.keywords}" />
+    <link rel="canonical" href="${canonicalUrl}" />
+
+    <!-- Open Graph / Facebook / Meta -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Fever Dream Comedy" />
+    <meta property="og:url" content="${canonicalUrl}" />
+    <meta property="og:title" content="${route.title}" />
+    <meta property="og:description" content="${route.description}" />
+    <meta property="og:image" content="${route.image}" />
+    <meta property="og:locale" content="en_CA" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="${route.title}" />
+    <meta name="twitter:description" content="${route.description}" />
+    <meta name="twitter:image" content="${route.image}" />
+
+    <!-- Schema.org Structured Data -->
+    <script type="application/ld+json">
+    ${JSON.stringify(structuredData, null, 2)}
+    </script>`;
+
     // Inject route-specific title and meta description
     renderedHtml = renderedHtml.replace(
       /<title>.*?<\/title>/i,
-      `<title>${route.title}</title>
-    <meta name="description" content="${route.description}" />
-    <meta property="og:title" content="${route.title}" />
-    <meta property="og:description" content="${route.description}" />
-    <meta property="og:type" content="website" />`
+      metaTags
     );
 
     const outDir = route.path === '/'
