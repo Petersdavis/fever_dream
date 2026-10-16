@@ -1,14 +1,28 @@
+import { useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useEvents } from '../hooks/useEvents';
-import { findEventBySlug, slugifyEvent } from '../lib/slugs';
+import { findEventBySlug } from '../lib/slugs';
 import SubscribeBanner from '../components/SubscribeBanner';
 import ShowCard from '../components/ShowCard';
+import { trackViewShow, trackTicketClick } from '../lib/tracking';
 
 export default function ShowDetail() {
   const { slug } = useParams();
   const { events, loading } = useEvents();
 
   const event = findEventBySlug(events, slug);
+
+  // Fire `view_show` (Meta: ViewContent) once the event resolves. High-intent
+  // engagement signal used for retargeting (docs/tracking.md §1).
+  useEffect(() => {
+    if (!event) return;
+    trackViewShow({
+      showId: event.id,
+      showTitle: event.title,
+      venueCity: event.venueCity,
+      priceFrom: event.priceValue ? (event.priceValue / 100).toFixed(2) : undefined,
+    });
+  }, [event]);
 
   if (loading) {
     return (
@@ -157,6 +171,15 @@ export default function ShowDetail() {
                   target="_blank"
                   rel="noopener noreferrer"
                   className="btn btn-primary show-detail-primary-cta"
+                  onClick={() =>
+                    trackTicketClick({
+                      showId: event.id,
+                      showTitle: event.title,
+                      venueCity: event.venueCity,
+                      ticketUrl: event.ticketUrl,
+                      placement: 'detail',
+                    })
+                  }
                 >
                   Get Tickets on Eventbrite →
                 </a>

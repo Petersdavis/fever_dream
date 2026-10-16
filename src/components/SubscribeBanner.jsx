@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { collection, doc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../lib/firebase';
+import { trackSubscribe } from '../lib/tracking';
 
 export default function SubscribeBanner() {
   const [email, setEmail] = useState('');
@@ -26,6 +27,13 @@ export default function SubscribeBanner() {
 
       await setDoc(subRef, payload, { merge: true });
       setStatus('success');
+      // Newsletter conversion (Meta: Subscribe). Fired only after the subscriber
+      // is persisted. `location_consent` is a boolean flag only — the raw
+      // coordinates stay in Firestore and are never sent to marketing tags.
+      trackSubscribe({
+        source: 'homepage_banner',
+        locationConsent: !!locationData,
+      });
     } catch (err) {
       console.error('Subscription error:', err);
       // Gracefully show success to user if offline, or error if real failure

@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../lib/firebase';
+import { trackContact, trackGenerateLead } from '../lib/tracking';
 
 const BookingForm = () => {
     const [name, setName] = useState('');
@@ -10,6 +11,12 @@ const BookingForm = () => {
     const [message, setMessage] = useState('');
     const [status, setStatus] = useState('idle'); // 'idle' | 'submitting' | 'success' | 'error'
     const [errorMessage, setErrorMessage] = useState('');
+
+    // Fire `contact` (Meta: Contact) once when the inquiry form is viewed.
+    // Signals inquiry intent for retargeting (docs/tracking.md §1).
+    useEffect(() => {
+        trackContact({ formLocation: 'book' });
+    }, []);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -29,6 +36,12 @@ const BookingForm = () => {
                 status: 'new',
             });
             setStatus('success');
+            // Primary lead conversion (Meta: Lead). Fired only after the inquiry
+            // is persisted to Firestore — never on validation failure.
+            trackGenerateLead({
+                leadType: 'booking_inquiry',
+                eventType: eventType.trim() || undefined,
+            });
             setName('');
             setEmail('');
             setEventType('');

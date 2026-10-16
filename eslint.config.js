@@ -26,4 +26,18 @@ export default defineConfig([
       'no-unused-vars': ['error', { varsIgnorePattern: '^[A-Z_]' }],
     },
   },
+  {
+    // Node-context files: build config, scripts, and the SSR-safe tracking/GTM
+    // modules that read `process.env` when running outside Vite.
+    files: [
+      'vite.config.js',
+      'scripts/**/*.mjs',
+      'src/lib/gtm.js',
+      'src/lib/tracking.js',
+      'src/lib/metaPixel.js',
+    ],
+    languageOptions: {
+      globals: { ...globals.browser, ...globals.node },
+    },
+  },
 ])

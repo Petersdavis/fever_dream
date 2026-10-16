@@ -2,6 +2,12 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { slugifyEvent } from '../src/lib/slugs.js';
+import { getGtmContainerId } from '../src/lib/gtm.js';
+import { loadEnv } from './load-env.mjs';
+
+// Populate process.env from .env* files so the GTM guard below can see
+// VITE_GTM_CONTAINER_ID (Vite only loads these for the app/config, not here).
+loadEnv(process.cwd(), process.env.NODE_ENV || 'production');
 
 const SITE_ORIGIN = 'https://feverdream-3bafe.web.app';
 const DEFAULT_IMAGE =
@@ -66,6 +72,22 @@ async function prerender() {
   }
 
   const template = fs.readFileSync(templatePath, 'utf8');
+
+  // Verify the GTM container snippet survived the client build. The snippet is
+  // injected by scripts/vite-plugin-gtm.mjs during `vite build`, so it must be
+  // present in dist/index.html before we clone it into every prerendered page.
+  const gtmContainerId = getGtmContainerId();
+  if (gtmContainerId) {
+    if (!template.includes('googletagmanager.com/gtm.js')) {
+      throw new Error(
+        `GTM container id "${gtmContainerId}" is configured but the container ` +
+          'snippet is missing from dist/index.html. Check scripts/vite-plugin-gtm.mjs.'
+      );
+    }
+    console.log(`✓ GTM container ${gtmContainerId} detected in build template.`);
+  } else {
+    console.log('ℹ No VITE_GTM_CONTAINER_ID configured — skipping GTM injection.');
+  }
 
   // Load events from src/data/events.json to dynamically build show landing pages
   const eventsFile = path.resolve(root, 'src/data/events.json');
@@ -254,6 +276,15 @@ async function prerender() {
 
     if (!fs.existsSync(outDir)) {
       fs.mkdirSync(outDir, { recursive: true });
+    }
+
+    // Guard: every prerendered page must retain the GTM container snippet so
+    // tags fire on static HTML before hydration (docs/tracking.md §7).
+    if (gtmContainerId && !renderedHtml.includes('googletagmanager.com/gtm.js')) {
+      throw new Error(
+        `GTM snippet missing from prerendered page "${route.path}". ` +
+          'The container must load on all public pages.'
+      );
     }
 
     const filePath = path.join(outDir, 'index.html');

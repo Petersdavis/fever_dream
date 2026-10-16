@@ -1,0 +1,140 @@
+{
+  "project": "fever_dream",
+  "description": "Website and backend synchronization services for Fever Dream Comedy. Stack: React (Vite), Firebase Hosting, Cloud Functions, and Firestore.",
+  "status_values": [
+    "pending",
+    "in_progress",
+    "blocked",
+    "review",
+    "done"
+  ],
+  "tasks": [
+    {
+      "id": "tracking-foundation",
+      "title": "Define conversion events and tracking governance",
+      "phase": "step-0-analytics",
+      "status": "done",
+      "requirements": [
+        "Identify the primary lead-conversion actions for the site, including booking inquiries, contact submissions, newsletter/subscribe actions, and outbound ticket clicks.",
+        "Define a consistent event schema for page views, engagement events, and lead conversions so the same signals can feed Google Tag Manager and Meta Pixel.",
+        "Document consent and privacy expectations before firing marketing tags in production.",
+        "Establish one source of truth for browser events to avoid double-counting across tags."
+      ],
+      "context": [
+        "src/**",
+        "public/**",
+        "scripts/**",
+        "README.md"
+      ],
+      "depends_on": [],
+      "notes": ""
+    },
+    {
+      "id": "gtm-container-installation",
+      "title": "Install Google Tag Manager across the Vite app",
+      "phase": "step-1-analytics",
+      "status": "done",
+      "requirements": [
+        "Add Google Tag Manager support to the React/Vite app and ensure the container loads on all public pages.",
+        "Make the GTM container id configurable through environment variables.",
+        "Preserve static prerendering and avoid blocking initial render.",
+        "Add verification coverage or a smoke-test path for the injected snippet."
+      ],
+      "context": [
+        "src/**",
+        "index.html",
+        "scripts/prerender.mjs",
+        "README.md"
+      ],
+      "depends_on": [
+        "tracking-foundation"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "meta-pixel-conversion-tracking",
+      "title": "Wire Meta Pixel conversion tracking through GTM",
+      "phase": "step-2-ads",
+      "status": "review",
+      "requirements": [
+        "Load Meta Pixel via Google Tag Manager and configure the base PageView event.",
+        "Track key lead and engagement events such as ViewContent, Contact, Lead, and outbound booking clicks.",
+        "Align event names and payloads with Meta's recommended conversion events for ad optimization.",
+        "Add debug and verification instructions for validating pixel fires in staging and production."
+      ],
+      "context": [
+        "src/**",
+        "functions/**",
+        "public/**",
+        "README.md"
+      ],
+      "depends_on": [
+        "gtm-container-installation"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "tracking-validation-and-documentation",
+      "title": "Validate marketing tracking and document the setup",
+      "phase": "step-3-qa",
+      "status": "pending",
+      "requirements": [
+        "Confirm GTM and Meta Pixel fire correctly across the core pages and conversion flows.",
+        "Check for duplicate events, broken tags, and performance regressions.",
+        "Document required environment variables, GTM container setup, and Meta Pixel QA steps."
+      ],
+      "context": [
+        "README.md",
+        "scripts/**",
+        "src/**"
+      ],
+      "depends_on": [
+        "meta-pixel-conversion-tracking"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "site-message-notifications",
+      "title": "Notify admins when new site messages are created",
+      "phase": "step-4-notifications",
+      "status": "pending",
+      "requirements": [
+        "Set up a Cloud Function or equivalent backend trigger to send notifications whenever a new site message is created.",
+        "Request browser notification permissions only after the user has passed the /admin authentication gate, never on public pages.",
+        "Ensure admin users can receive and test notifications without exposing the permission prompt to unauthenticated visitors.",
+        "Document the notification delivery path, permission UX, and any required Firebase or browser configuration."
+      ],
+      "context": [
+        "functions/**",
+        "src/**",
+        "README.md"
+      ],
+      "depends_on": [
+        
+      ],
+      "notes": ""
+    },
+    {
+      "id": "eventbrite-embedded-checkout",
+      "title": "Embed Eventbrite checkout iframe for ticket sales",
+      "phase": "step-5-ticketing",
+      "status": "pending",
+      "requirements": [
+        "Replace or augment the outbound ticket CTA with Eventbrite's supported embedded checkout or registration iframe so users can complete purchase without leaving the site.",
+        "Preserve funnel continuity by keeping the branding, event context, and conversion tracking active around the embedded flow.",
+        "Ensure the embed degrades gracefully on mobile and in browsers that block third-party iframes or scripts.",
+        "Document any Eventbrite organizer settings, embed codes, or account prerequisites needed to enable the embedded checkout experience.",
+        "Update conversion events to include eventbrite ticket sale completion"
+      ],
+      "context": [
+        "src/pages/ShowDetail.jsx",
+        "src/components/**",
+        "README.md"
+      ],
+      "depends_on": [
+       
+      ],
+      "notes": ""
+    }
+  ]
+}

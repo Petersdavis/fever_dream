@@ -38,6 +38,20 @@ jobs:
           fi
 
       - name: Build client, server, and prerender static HTML
+        # Vite inlines VITE_* vars at build time, so the production GTM
+        # container id AND the Meta Pixel id must be present here. Configure
+        # them as repository variables
+        # (Settings → Secrets and variables → Actions → Variables):
+        #   VITE_GTM_CONTAINER_ID = GTM-MQ858WZ3
+        #   VITE_META_PIXEL_ID    = <your 15–16 digit Meta Pixel id>
+        # Production uses the PUBLISHED container, so the GTM environment
+        # tokens (VITE_GTM_ENV_AUTH / VITE_GTM_ENV_PREVIEW) are intentionally
+        # left empty here.
+        # NOTE: VITE_META_PIXEL_ID is optional — when unset the pixel no-ops.
+        env:
+          VITE_GTM_CONTAINER_ID: ${{ vars.VITE_GTM_CONTAINER_ID }}
+          VITE_META_PIXEL_ID: ${{ vars.VITE_META_PIXEL_ID }}
+          VITE_TRACKING_DEBUG: 'false'
         run: npm run build
 
       - name: Deploy to Firebase Hosting

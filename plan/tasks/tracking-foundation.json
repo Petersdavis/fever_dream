@@ -1,0 +1,20 @@
+{
+  "id": "tracking-foundation",
+  "title": "Define conversion events and tracking governance",
+  "phase": "step-0-analytics",
+  "status": "in_progress",
+  "requirements": [
+    "Identify the primary lead-conversion actions for the site, including booking inquiries, contact submissions, newsletter/subscribe actions, and outbound ticket clicks.",
+    "Define a consistent event schema for page views, engagement events, and lead conversions so the same signals can feed Google Tag Manager and Meta Pixel.",
+    "Document consent and privacy expectations before firing marketing tags in production.",
+    "Establish one source of truth for browser events to avoid double-counting across tags."
+  ],
+  "context": [
+    "src/**",
+    "public/**",
+    "scripts/**",
+    "README.md"
+  ],
+  "depends_on": [],
+  "notes": "DONE (awaiting review). Deliverables: (1) docs/tracking.md — governance contract covering the 6 primary conversion actions, canonical event schema (envelope + catalogue + field conventions), single-source-of-truth architecture, dedupe strategy via event_id, and consent/privacy expectations (Consent Mode v2 default-denied, no PII in dataLayer, PIPEDA/CASL notes). (2) src/lib/tracking.js — SSR-safe, side-effect-free shared module exporting EVENTS, EVENT_CATEGORIES, track(), and typed helpers (trackPageView, trackViewShow, trackTicketClick, trackContact, trackGenerateLead, trackSubscribe); the ONLY entry point for browser events. (3) projects/fever_dream/.env.example — VITE_GTM_CONTAINER_ID, VITE_META_PIXEL_ID, VITE_TRACKING_DEBUG. (4) README.md — new Marketing Tracking & Conversion Governance section. Validation: npx eslint src/lib/tracking.js clean; npm run build (client+SSR+prerender of 16 pages) succeeds. No tags fire in this task by design; downstream tasks implement against this contract."
+}

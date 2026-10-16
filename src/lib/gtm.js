@@ -1,0 +1,149 @@
+/**
+ * gtm.js — Google Tag Manager container configuration & snippet builders.
+ *
+ * See docs/tracking.md for the full governance contract.
+ *
+ * Design rules (do not violate):
+ *  - GTM is the ONLY tag loader. Meta Pixel and GA4 are loaded *through* GTM,
+ *    never via a second hard-coded snippet (docs/tracking.md §3).
+ *  - The container id is configurable through the `VITE_GTM_CONTAINER_ID`
+ *    environment variable. When unset, every builder returns an empty string so
+ *    local development and CI builds without a container simply no-op.
+ *  - This module is SSR-safe and side-effect free at import time. It only builds
+ *    strings; it never touches `window`/`document`. The Vite prerender step
+ *    (scripts/prerender.mjs) therefore remains unaffected.
+ *  - Consent Mode v2 defaults are emitted *before* the container loads, with all
+ *    storage signals `denied` until a consent banner grants them
+ *    (docs/tracking.md §5.1).
+ */
+
+/**
+ * Read an env var from either the Vite build context (`import.meta.env`) or a
+ * plain Node script context (`process.env`). This lets the same module power the
+ * Vite HTML plugin *and* the Node-based prerender/verify scripts.
+ * @param {string} key
+ * @returns {string}
+ */
+function readEnv(key) {
+  try {
+    const viteValue = import.meta?.env?.[key];
+    if (typeof viteValue === 'string' && viteValue.trim()) return viteValue.trim();
+  } catch {
+    // `import.meta.env` is unavailable outside Vite — fall through to process.env.
+  }
+  try {
+    const nodeValue = typeof process !== 'undefined' ? process.env?.[key] : undefined;
+    if (typeof nodeValue === 'string' && nodeValue.trim()) return nodeValue.trim();
+  } catch {
+    // Ignore — no env available.
+  }
+  return '';
+}
+
+/**
+ * Read the configured GTM container id from Vite env or process env.
+ * Returns an empty string when unset so callers can no-op cleanly.
+ * @returns {string}
+ */
+export function getGtmContainerId() {
+  return readEnv('VITE_GTM_CONTAINER_ID');
+}
+
+/**
+ * Read the optional GTM environment tokens (DEV/STAGING only).
+ * Both must be present to activate a non-production environment. In production
+ * both are intentionally empty, which makes GTM serve the published container.
+ * @returns {{ auth: string, preview: string }}
+ */
+export function getGtmEnvTokens() {
+  return {
+    auth: readEnv('VITE_GTM_ENV_AUTH'),
+    preview: readEnv('VITE_GTM_ENV_PREVIEW'),
+  };
+}
+
+/**
+ * Build the GTM environment query string appended to the container URL.
+ * Returns an empty string in production (no tokens configured).
+ * @param {string} [auth] - Explicit auth token; falls back to env when omitted.
+ * @param {string} [preview] - Explicit preview id; falls back to env when omitted.
+ * @returns {string}
+ */
+export function getGtmEnvQuery(auth, preview) {
+  const tokens = getGtmEnvTokens();
+  const resolvedAuth = (auth ?? tokens.auth ?? '').trim();
+  const resolvedPreview = (preview ?? tokens.preview ?? '').trim();
+  if (!resolvedAuth || !resolvedPreview) return '';
+  return `&gtm_auth=${encodeURIComponent(resolvedAuth)}&gtm_preview=${encodeURIComponent(
+    resolvedPreview
+  )}&gtm_cookies_win=x`;
+}
+
+/**
+ * Build the Consent Mode v2 default-denied bootstrap.
+ * Must run BEFORE the GTM container snippet so the defaults are queued first.
+ * @param {string} [containerId] - Explicit container id; falls back to env.
+ * @returns {string} Inline `<script>` markup, or '' when no container is set.
+ */
+export function buildConsentDefaultSnippet(containerId) {
+  const resolvedId = (containerId ?? getGtmContainerId() ?? '').trim();
+  if (!resolvedId) return '';
+  return `<script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('consent', 'default', {
+      ad_storage: 'denied',
+      ad_user_data: 'denied',
+      ad_personalization: 'denied',
+      analytics_storage: 'denied',
+      wait_for_update: 500
+    });
+  </script>`;
+}
+
+/**
+ * Build the GTM `<head>` container snippet.
+ * Uses the async loader so it never blocks initial render.
+ * @param {string} [containerId] - Explicit container id; falls back to env.
+ * @param {string} [auth] - Explicit GTM env auth token; falls back to env.
+ * @param {string} [preview] - Explicit GTM env preview id; falls back to env.
+ * @returns {string} Head markup, or '' when no container is configured.
+ */
+export function buildGtmHeadSnippet(containerId, auth, preview) {
+  const resolvedId = (containerId ?? getGtmContainerId() ?? '').trim();
+  if (!resolvedId) return '';
+  const envQuery = getGtmEnvQuery(auth, preview);
+  return `<!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl+'${envQuery}';f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','${resolvedId}');</script>
+    <!-- End Google Tag Manager -->`;
+}
+
+/**
+ * Build the GTM `<body>` noscript fallback.
+ * @param {string} [containerId] - Explicit container id; falls back to env.
+ * @param {string} [auth] - Explicit GTM env auth token; falls back to env.
+ * @param {string} [preview] - Explicit GTM env preview id; falls back to env.
+ * @returns {string} Noscript markup, or '' when no container is configured.
+ */
+export function buildGtmBodySnippet(containerId, auth, preview) {
+  const resolvedId = (containerId ?? getGtmContainerId() ?? '').trim();
+  if (!resolvedId) return '';
+  const envQuery = getGtmEnvQuery(auth, preview);
+  return `<!-- Google Tag Manager (noscript) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=${resolvedId}${envQuery}"
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->`;
+}
+
+export default {
+  getGtmContainerId,
+  getGtmEnvTokens,
+  getGtmEnvQuery,
+  buildConsentDefaultSnippet,
+  buildGtmHeadSnippet,
+  buildGtmBodySnippet,
+};

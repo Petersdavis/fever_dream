@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { slugifyEvent } from '../lib/slugs';
+import { trackTicketClick } from '../lib/tracking';
 
 export default function ShowCard({ event }) {
   const startDate = event.start ? new Date(event.start) : null;
@@ -72,6 +73,15 @@ export default function ShowCard({ event }) {
             target="_blank"
             rel="noopener noreferrer"
             className="btn btn-primary show-card-cta"
+            onClick={() =>
+              trackTicketClick({
+                showId: event.id,
+                showTitle: event.title,
+                venueCity: event.venueCity,
+                ticketUrl: event.ticketUrl,
+                placement: 'card',
+              })
+            }
           >
             Tickets →
           </a>

@@ -1,0 +1,19 @@
+{
+  "id": "site-message-notifications",
+  "title": "Notify admins when new site messages are created",
+  "phase": "step-4-notifications",
+  "status": "in_progress",
+  "requirements": [
+    "Set up a Cloud Function or equivalent backend trigger to send notifications whenever a new site message is created.",
+    "Request browser notification permissions only after the user has passed the /admin authentication gate, never on public pages.",
+    "Ensure admin users can receive and test notifications without exposing the permission prompt to unauthenticated visitors.",
+    "Document the notification delivery path, permission UX, and any required Firebase or browser configuration."
+  ],
+  "context": [
+    "functions/**",
+    "src/**",
+    "README.md"
+  ],
+  "depends_on": [],
+  "notes": "IN PROGRESS. Plan: (1) add a Firestore onCreate trigger in functions/index.js for the `inquiries` collection (the site's inbound 'site message' record) that writes a `notifications` doc and logs delivery; (2) add an admin-only browser Notification UX in src/pages/Admin.jsx that requests permission ONLY after auth, subscribes to new notification docs, and offers a test button; (3) document the delivery path + permission UX in README.md."
+}
