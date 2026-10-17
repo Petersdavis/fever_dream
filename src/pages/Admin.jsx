@@ -13,6 +13,19 @@ import {
     deleteDoc
 } from 'firebase/firestore';
 import { auth, db } from '../lib/firebase';
+import {
+    isNotificationSupported,
+    getNotificationPermission,
+    requestNotificationPermission,
+    showNotification,
+    showTestNotification
+} from '../lib/notifications';
+import {
+    isPushSupported,
+    isPushConfigured,
+    registerPushToken,
+    onForegroundMessage
+} from '../lib/push';
 
 export default function Admin() {
     const [user, setUser] = useState(null);
@@ -31,6 +44,15 @@ export default function Admin() {
     const [dataLoading, setDataLoading] = useState(false);
     const [dataError, setDataError] = useState('');
 
+    // Browser notification state (admin-only; never touched on public pages)
+    const [notifPermission, setNotifPermission] = useState('default');
+    const [notifError, setNotifError] = useState('');
+
+    // FCM Web Push state (background delivery, works with the tab closed).
+    const [pushSupported, setPushSupported] = useState(false);
+    const [pushStatus, setPushStatus] = useState('idle'); // 'idle' | 'registering' | 'registered' | 'error'
+    const [pushError, setPushError] = useState('');
+
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
             setUser(currentUser);
@@ -38,6 +60,83 @@ export default function Admin() {
         });
         return () => unsubscribe();
     }, []);
+
+    // Reflect the current browser permission once mounted (read-only; does NOT
+    // prompt). The prompt is only ever triggered by an explicit admin action.
+    useEffect(() => {
+        setNotifPermission(getNotificationPermission());
+    }, []);
+
+    // Probe FCM Web Push support once mounted (read-only; does NOT prompt).
+    useEffect(() => {
+        let active = true;
+        isPushSupported().then((supported) => {
+            if (active) setPushSupported(supported);
+        });
+        return () => {
+            active = false;
+        };
+    }, []);
+
+    // Handle foreground FCM messages (tab open). Background messages are shown
+    // by the service worker instead. Only active while authenticated.
+    useEffect(() => {
+        if (!user || !pushSupported) return undefined;
+        let unsubscribe = null;
+        let active = true;
+        onForegroundMessage((payload) => {
+            const n = payload?.notification || {};
+            const d = payload?.data || {};
+            showNotification({
+                title: n.title || d.title || 'New site message',
+                body: n.body || d.body || '',
+                tag: d.tag || d.sourceId || 'fever-dream-fcm',
+            });
+        }).then((unsub) => {
+            if (active) unsubscribe = unsub;
+            else if (typeof unsub === 'function') unsub();
+        });
+        return () => {
+            active = false;
+            if (typeof unsubscribe === 'function') unsubscribe();
+        };
+    }, [user, pushSupported]);
+
+    const handleEnableNotifications = async () => {
+        setNotifError('');
+        setPushError('');
+        const result = await requestNotificationPermission();
+        setNotifPermission(result);
+        if (result !== 'granted') {
+            if (result === 'denied') {
+                setNotifError('Notifications are blocked. Enable them in your browser site settings to receive alerts.');
+            }
+            return;
+        }
+
+        // Permission granted — register this device for background FCM push so
+        // alerts arrive even when the tab is closed or the phone was asleep.
+        if (isPushConfigured() && pushSupported) {
+            setPushStatus('registering');
+            const { token, error } = await registerPushToken(user?.email);
+            if (token) {
+                setPushStatus('registered');
+            } else {
+                setPushStatus('error');
+                setPushError(error || 'Failed to register this device for push notifications.');
+            }
+        }
+
+        showTestNotification();
+    };
+
+    const handleTestNotification = () => {
+        setNotifError('');
+        const shown = showTestNotification();
+        if (!shown) {
+            setNotifError('Could not show a notification. Make sure permission is granted.');
+        }
+    };
 
     const fetchAdminData = async () => {
         setDataLoading(true);
@@ -231,7 +330,33 @@ export default function Admin() {
                         </span>
                     </div>
 
-                    <div style={{ display: 'flex', gap: '12px' }}>
+                    <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'center' }}>
+                        {pushStatus === 'registered' && (
+                            <span style={{ fontSize: '0.75rem', color: 'var(--accent-color)', fontWeight: 600 }}>
+                                ✓ Push enabled on this device
+                            </span>
+                        )}
+                        {isNotificationSupported() && notifPermission !== 'granted' && (
+                            <button
+                                type="button"
+                                onClick={handleEnableNotifications}
+                                disabled={pushStatus === 'registering'}
+                                className="btn btn-primary"
+                                style={{ padding: '8px 18px', fontSize: '0.85rem' }}
+                            >
+                                {pushStatus === 'registering' ? 'Enabling…' : '🔔 Enable Notifications'}
+                            </button>
+                        )}
+                        {isNotificationSupported() && notifPermission === 'granted' && (
+                            <button
+                                type="button"
+                                onClick={handleTestNotification}
+                                className="btn btn-secondary"
+                                style={{ padding: '8px 18px', fontSize: '0.85rem' }}
+                            >
+                                🔔 Send Test
+                            </button>
+                        )}
                         <button
                             type="button"
                             onClick={fetchAdminData}
@@ -250,6 +375,20 @@ export default function Admin() {
                         </button>
                     </div>
                 </div>
+
+                {(notifError || pushError) && (
+                    <div style={{
+                        background: 'rgba(255, 107, 107, 0.15)',
+                        border: '1px solid #ff6b6b',
+                        color: '#ff6b6b',
+                        padding: '10px 16px',
+                        borderRadius: '10px',
+                        marginBottom: '20px',
+                        fontSize: '0.85rem'
+                    }}>
+                        {notifError || pushError}
+                    </div>
+                )}
 
                 {/* Navigation Tabs */}
                 <div style={{

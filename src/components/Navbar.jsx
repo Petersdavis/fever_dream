@@ -4,6 +4,9 @@ import { Link, NavLink, useLocation } from 'react-router-dom';
 const Navbar = () => {
     const [isOpen, setIsOpen] = useState(false);
     const location = useLocation();
+    // Track the route the menu was opened on so a navigation closes it without
+    // calling setState synchronously inside an effect (react-hooks rule).
+    const [menuRoute, setMenuRoute] = useState(location.pathname);
 
     const navItems = [
         { name: 'Our Comedians', path: '/comedians' },
@@ -11,10 +14,11 @@ const Navbar = () => {
         { name: 'Book', path: '/book' },
     ];
 
-    // Close mobile menu whenever route changes
-    useEffect(() => {
+    // Close mobile menu whenever route changes (derived during render).
+    if (isOpen && menuRoute !== location.pathname) {
         setIsOpen(false);
-    }, [location.pathname]);
+        setMenuRoute(location.pathname);
+    }
 
     // Close on Escape key
     useEffect(() => {

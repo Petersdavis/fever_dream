@@ -21,7 +21,7 @@ export function useStats() {
         } else {
           setStats(localFallbackStats);
         }
-      } catch (err) {
+      } catch {
         if (!isMounted) return;
         setStats(localFallbackStats);
       } finally {

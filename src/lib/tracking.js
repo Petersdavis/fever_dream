@@ -20,6 +20,7 @@ export const EVENTS = Object.freeze({
   PAGE_VIEW: 'page_view',
   VIEW_SHOW: 'view_show',
   TICKET_CLICK: 'ticket_click',
+  TICKET_PURCHASE: 'ticket_purchase',
   CONTACT: 'contact',
   GENERATE_LEAD: 'generate_lead',
   SUBSCRIBE: 'subscribe',
@@ -38,6 +39,7 @@ const EVENT_CATEGORY_MAP = Object.freeze({
   [EVENTS.VIEW_SHOW]: EVENT_CATEGORIES.ENGAGEMENT,
   [EVENTS.CONTACT]: EVENT_CATEGORIES.ENGAGEMENT,
   [EVENTS.TICKET_CLICK]: EVENT_CATEGORIES.LEAD,
+  [EVENTS.TICKET_PURCHASE]: EVENT_CATEGORIES.LEAD,
   [EVENTS.GENERATE_LEAD]: EVENT_CATEGORIES.LEAD,
   [EVENTS.SUBSCRIBE]: EVENT_CATEGORIES.LEAD,
 });
@@ -173,7 +175,7 @@ export function trackViewShow({ showId, showTitle, venueCity, priceFrom } = {}) 
 /**
  * Track an outbound ticket click.
  * @param {object} params
- * @param {'card'|'detail'} params.placement
+ * @param {'card'|'detail'|'embed'} params.placement
  */
 export function trackTicketClick({
   showId,
@@ -188,6 +190,47 @@ export function trackTicketClick({
     venue_city: venueCity,
     ticket_url: ticketUrl,
     placement,
+  });
+}
+
+/**
+ * Track a completed Eventbrite ticket sale (Meta: Purchase).
+ *
+ * Fired when the embedded checkout reports a completed order. Because the
+ * checkout runs in a cross-origin iframe we cannot read the order directly;
+ * the component fires this from Eventbrite's `orderComplete` widget callback
+ * (or, for the plain-iframe fallback, when the visitor returns from a
+ * successful checkout via the `?checkout=complete` return URL).
+ *
+ * @param {object} params
+ * @param {string} [params.showId]
+ * @param {string} [params.showTitle]
+ * @param {string} [params.venueCity]
+ * @param {number|string} [params.value] - Order total in major units.
+ * @param {string} [params.currency] - ISO currency code, defaults to CAD.
+ * @param {string} [params.orderId] - Eventbrite order id (non-PII).
+ * @param {number} [params.quantity] - Number of tickets purchased.
+ * @param {'embed'|'return_url'} [params.source] - How completion was detected.
+ */
+export function trackTicketPurchase({
+  showId,
+  showTitle,
+  venueCity,
+  value,
+  currency,
+  orderId,
+  quantity,
+  source,
+} = {}) {
+  return track(EVENTS.TICKET_PURCHASE, {
+    show_id: showId,
+    show_title: showTitle,
+    venue_city: venueCity,
+    value,
+    currency: currency || 'CAD',
+    order_id: orderId,
+    quantity,
+    source,
   });
 }
 
@@ -221,6 +264,7 @@ export default {
   trackPageView,
   trackViewShow,
   trackTicketClick,
+  trackTicketPurchase,
   trackContact,
   trackGenerateLead,
   trackSubscribe,

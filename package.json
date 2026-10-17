@@ -12,7 +12,8 @@
     "build": "npm run build:client && npm run build:server && npm run build:prerender",
     "verify:gtm": "node scripts/verify-gtm.mjs",
     "verify:meta": "node scripts/verify-meta-pixel.mjs",
-    "verify:tracking": "npm run verify:gtm && npm run verify:meta",
+    "verify:eventbrite": "node scripts/verify-eventbrite.mjs",
+    "verify:tracking": "npm run verify:gtm && npm run verify:meta && npm run verify:eventbrite",
     "lint": "eslint .",
     "preview": "vite preview"
   },

@@ -1,8 +1,10 @@
 const { onSchedule } = require('firebase-functions/v2/scheduler');
 const { onRequest } = require('firebase-functions/v2/https');
+const { onDocumentCreated } = require('firebase-functions/v2/firestore');
 const { defineSecret } = require('firebase-functions/params');
 const { initializeApp } = require('firebase-admin/app');
 const { getFirestore, FieldValue } = require('firebase-admin/firestore');
+const { getMessaging } = require('firebase-admin/messaging');
 const logger = require('firebase-functions/logger');
 
 initializeApp();
@@ -17,6 +19,14 @@ const EVENTS_COLLECTION = 'events';
 const STATS_COLLECTION = 'stats';
 const API_BASE = 'https://www.eventbriteapi.com/v3';
 const MAX_EVENT_AGE_DAYS = 180; // Only sync events created within the last 6 months (180 days)
+
+// Inbound "site messages" (booking inquiries / contact submissions) and the
+// derived notification feed that the admin dashboard subscribes to.
+const INQUIRIES_COLLECTION = 'inquiries';
+const NOTIFICATIONS_COLLECTION = 'notifications';
+// FCM registration tokens for admin devices (written by the authenticated
+// admin dashboard via src/lib/push.js).
+const ADMIN_TOKENS_COLLECTION = 'adminTokens';
 
 /**
  * Scrape the public Eventbrite organizer profile to retrieve verified quality signals / lifetime stats.
@@ -229,6 +239,134 @@ exports.syncEventsNow = onRequest(
     } catch (err) {
       logger.error('Manual sync failed', err);
       res.status(500).json({ ok: false, error: String(err) });
+    }
+  },
+);
+
+/**
+ * Build the human-readable notification payload for a new site message.
+ * Kept pure so it can be unit-tested without Firestore.
+ */
+function buildMessageNotification(data = {}) {
+  const name = (data.name || 'Someone').toString().trim() || 'Someone';
+  const eventType = data.eventType ? ` (${data.eventType})` : '';
+  return {
+    type: 'site_message',
+    title: 'New site message',
+    body: `${name} sent a new inquiry${eventType}.`,
+    // Deep-link straight to the admin dashboard where the message is listed.
+    link: '/admin',
+    sourceCollection: INQUIRIES_COLLECTION,
+    sourceId: data.id || null,
+  };
+}
+
+/**
+ * Send an FCM Web Push to every registered admin device. This is what delivers
+ * the alert when no tab is open and the device was asleep — Google's push
+ * service wakes the OS, which hands the message to the service worker
+ * (public/firebase-messaging-sw.js).
+ *
+ * Invalid/expired tokens are pruned so the collection stays clean.
+ */
+async function sendPushToAdmins(notification) {
+  const tokensSnap = await db.collection(ADMIN_TOKENS_COLLECTION).get();
+  const tokens = tokensSnap.docs.map((d) => d.id).filter(Boolean);
+
+  if (tokens.length === 0) {
+    logger.info('No admin push tokens registered; skipping FCM send.');
+    return { sent: 0, failed: 0 };
+  }
+
+  const message = {
+    tokens,
+    notification: {
+      title: notification.title,
+      body: notification.body,
+    },
+    data: {
+      title: notification.title,
+      body: notification.body,
+      link: notification.link || '/admin',
+      tag: notification.sourceId || 'fever-dream-site-message',
+      sourceId: notification.sourceId || '',
+    },
+    webpush: {
+      fcmOptions: { link: notification.link || '/admin' },
+    },
+  };
+
+  const response = await getMessaging().sendEachForMulticast(message);
+
+  // Prune tokens FCM reports as permanently invalid.
+  const staleTokens = [];
+  response.responses.forEach((r, i) => {
+    if (!r.success) {
+      const code = r.error?.code || '';
+      if (
+        code === 'messaging/registration-token-not-registered' ||
+        code === 'messaging/invalid-registration-token' ||
+        code === 'messaging/invalid-argument'
+      ) {
+        staleTokens.push(tokens[i]);
+      }
+    }
+  });
+
+  if (staleTokens.length > 0) {
+    const batch = db.batch();
+    staleTokens.forEach((t) => batch.delete(db.collection(ADMIN_TOKENS_COLLECTION).doc(t)));
+    await batch.commit();
+    logger.info(`Pruned ${staleTokens.length} stale admin push token(s).`);
+  }
+
+  logger.info(`FCM push sent to ${response.successCount}/${tokens.length} admin device(s).`);
+  return { sent: response.successCount, failed: response.failureCount };
+}
+
+/**
+ * Firestore trigger: whenever a new site message (inquiry) is created, (1) fan
+ * it out into the `notifications` collection that the authenticated admin
+ * dashboard subscribes to, and (2) send an FCM Web Push to every registered
+ * admin device so the alert arrives even when no tab is open. The Admin SDK
+ * bypasses security rules, so this is the only writer of `notifications`; the
+ * client is read-only (see firestore.rules).
+ */
+exports.onSiteMessageCreated = onDocumentCreated(
+  {
+    document: `${INQUIRIES_COLLECTION}/{messageId}`,
+    region: 'us-central1',
+  },
+  async (event) => {
+    const snapshot = event.data;
+    if (!snapshot) {
+      logger.warn('onSiteMessageCreated fired without a document snapshot.');
+      return;
+    }
+
+    const data = snapshot.data() || {};
+    const notification = buildMessageNotification({ ...data, id: snapshot.id });
+
+    // 1) Persist the in-app feed entry (best-effort; never blocks the push).
+    try {
+      await db.collection(NOTIFICATIONS_COLLECTION).add({
+        ...notification,
+        read: false,
+        createdAt: FieldValue.serverTimestamp(),
+      });
+      logger.info(
+        `Queued admin notification for new site message ${snapshot.id} from ${data.email || 'unknown'}.`,
+      );
+    } catch (err) {
+      logger.error(`Failed to queue notification for message ${snapshot.id}`, err);
+    }
+
+    // 2) Deliver the background push. Failures here are logged, not thrown, so
+    // a push outage never loses the persisted feed entry above.
+    try {
+      await sendPushToAdmins(notification);
+    } catch (err) {
+      logger.error(`Failed to send FCM push for message ${snapshot.id}`, err);
     }
   },
 );

@@ -1993,6 +1993,112 @@ h2 {
   text-align: center;
 }
 
+/* --- Eventbrite embedded checkout (docs/tracking.md §9) --- */
+
+.eventbrite-checkout {
+  width: 100%;
+}
+
+.eventbrite-embed-wrapper {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.03);
+  overflow: hidden;
+}
+
+.eventbrite-embed-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 16px;
+  background: rgba(0, 0, 0, 0.25);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.eventbrite-embed-title {
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.eventbrite-embed-open-link {
+  color: var(--accent-color);
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.eventbrite-embed-open-link:hover {
+  color: #fff;
+}
+
+.eventbrite-embed-loading {
+  padding: 16px;
+  text-align: center;
+  color: var(--text-dim);
+  font-size: 0.9rem;
+}
+
+/* Container that Eventbrite's widget injects its own iframe into. The widget
+   sets an explicit pixel height on this element, so we only reserve a sensible
+   minimum and let it take over from there. */
+.eventbrite-embed-container {
+  width: 100%;
+  min-height: 620px;
+  background: #fff;
+  overflow: hidden;
+}
+
+.eventbrite-embed-container iframe {
+  display: block;
+  width: 100%;
+  border: 0;
+}
+
+.eventbrite-embed-note {
+  margin: 0;
+  padding: 12px 16px;
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  text-align: center;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.eventbrite-embed-note a {
+  color: var(--accent-color);
+  font-weight: 600;
+}
+
+.eventbrite-embed-fallback {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.eventbrite-embed-fallback p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--text-dim);
+  text-align: center;
+}
+
+@media (max-width: 640px) {
+  .eventbrite-embed-container {
+    min-height: 720px;
+  }
+
+  .eventbrite-embed-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+}
+
 .show-detail-summary-box {
   border-top: 1px solid rgba(255, 255, 255, 0.1);
   padding-top: 24px;

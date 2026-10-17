@@ -28,6 +28,7 @@ const CANONICAL_EVENTS = Object.freeze({
   PAGE_VIEW: 'page_view',
   VIEW_SHOW: 'view_show',
   TICKET_CLICK: 'ticket_click',
+  TICKET_PURCHASE: 'ticket_purchase',
   CONTACT: 'contact',
   GENERATE_LEAD: 'generate_lead',
   SUBSCRIBE: 'subscribe',
@@ -88,6 +89,7 @@ export function isMetaPixelConfigured() {
  * | `generate_lead`       | `Lead`              |
  * | `subscribe`           | `Subscribe`         |
  * | `ticket_click`        | `InitiateCheckout`  |
+ * | `ticket_purchase`     | `Purchase`          |
  */
 export const META_EVENT_MAP = Object.freeze({
   [CANONICAL_EVENTS.PAGE_VIEW]: 'PageView',
@@ -96,6 +98,7 @@ export const META_EVENT_MAP = Object.freeze({
   [CANONICAL_EVENTS.GENERATE_LEAD]: 'Lead',
   [CANONICAL_EVENTS.SUBSCRIBE]: 'Subscribe',
   [CANONICAL_EVENTS.TICKET_CLICK]: 'InitiateCheckout',
+  [CANONICAL_EVENTS.TICKET_PURCHASE]: 'Purchase',
 });
 
 /**

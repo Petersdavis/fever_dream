@@ -35,9 +35,19 @@ export default defineConfig([
       'src/lib/gtm.js',
       'src/lib/tracking.js',
       'src/lib/metaPixel.js',
+      'src/lib/eventbrite.js',
     ],
     languageOptions: {
       globals: { ...globals.browser, ...globals.node },
+    },
+  },
+  {
+    // Cloud Functions run in a CommonJS Node runtime (not bundled by Vite).
+    files: ['functions/**/*.js'],
+    languageOptions: {
+      ecmaVersion: 2020,
+      sourceType: 'commonjs',
+      globals: globals.node,
     },
   },
 ])

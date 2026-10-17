@@ -97,7 +97,7 @@
       "id": "site-message-notifications",
       "title": "Notify admins when new site messages are created",
       "phase": "step-4-notifications",
-      "status": "pending",
+      "status": "review",
       "requirements": [
         "Set up a Cloud Function or equivalent backend trigger to send notifications whenever a new site message is created.",
         "Request browser notification permissions only after the user has passed the /admin authentication gate, never on public pages.",
@@ -109,16 +109,14 @@
         "src/**",
         "README.md"
       ],
-      "depends_on": [
-        
-      ],
+      "depends_on": [],
       "notes": ""
     },
     {
       "id": "eventbrite-embedded-checkout",
       "title": "Embed Eventbrite checkout iframe for ticket sales",
       "phase": "step-5-ticketing",
-      "status": "pending",
+      "status": "review",
       "requirements": [
         "Replace or augment the outbound ticket CTA with Eventbrite's supported embedded checkout or registration iframe so users can complete purchase without leaving the site.",
         "Preserve funnel continuity by keeping the branding, event context, and conversion tracking active around the embedded flow.",
@@ -131,10 +129,8 @@
         "src/components/**",
         "README.md"
       ],
-      "depends_on": [
-       
-      ],
-      "notes": ""
+      "depends_on": [],
+      "notes": "Implemented Eventbrite embedded checkout using the OFFICIAL widget (eb_widgets.js -> EBWidgets.createWidget), not a hand-rolled iframe. src/lib/eventbrite.js: id extraction (explicit eventbriteId or ticketUrl), getContainerId, buildWidgetOptions, getEmbedConfig gating, isSecureContextForEmbed, kill-switch VITE_EVENTBRITE_EMBED_ENABLED. src/components/EventbriteCheckout.jsx: lazy-loads the widget script on click, mounts into a deterministic container, 10s watchdog -> fallback panel, outbound link when no id / kill-switch / non-https / no iframe support, always-available Open-in-new-tab + Buy-on-Eventbrite links. Conversion: ticket_click (InitiateCheckout) on open; ticket_purchase (Purchase) via the widget onOrderComplete callback plus ?checkout=complete return-URL marker, one-shot guarded. Added ticket_purchase to tracking.js + metaPixel.js (-> Purchase). Styles in index.css for .eventbrite-embed-container. scripts/verify-eventbrite.mjs (24 checks) + npm run verify:eventbrite; verify:tracking now includes it. Docs updated in docs/tracking.md §9 and README.md. NOTE: legacy /tickets-external endpoint is retired (HTTP 404) - do not reintroduce it. Widget requires https, so plain http://localhost shows the outbound fallback. lint clean, build 16 pages, verify:tracking all pass."
     }
   ]
 }

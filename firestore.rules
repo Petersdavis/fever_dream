@@ -37,6 +37,23 @@ service cloud.firestore {
       allow read, update, delete: if isAdmin();
     }
 
+    // Admin notification feed: written only by the onSiteMessageCreated Cloud
+    // Function (Admin SDK bypasses these rules). Authenticated admins may read
+    // and mark notifications as read; clients can never create or delete them.
+    match /notifications/{notificationId} {
+      allow read, update: if isAdmin();
+      allow create, delete: if false;
+    }
+
+    // FCM registration tokens for admin devices. An authenticated admin may
+    // register/refresh their own device token (create/update); the Cloud
+    // Function prunes stale tokens via the Admin SDK. Clients may never read
+    // the collection (tokens are secrets) or delete entries directly.
+    match /adminTokens/{token} {
+      allow create, update: if isAdmin();
+      allow read, delete: if false;
+    }
+
     // Deny everything else by default.
     match /{document=**} {
       allow read, write: if false;

@@ -93,6 +93,7 @@ Copy [`.env.example`](.env.example:1) to `.env.local` and set:
 | `VITE_GTM_ENV_PREVIEW` | GTM environment preview id — **DEV/STAGING only**. |
 | `VITE_META_PIXEL_ID` | Meta Pixel id, loaded via GTM. |
 | `VITE_TRACKING_DEBUG` | Set to `true` to log `dataLayer` pushes to the console. |
+| `VITE_EVENTBRITE_EMBED_ENABLED` | Set to `false` to force the outbound ticket link everywhere. Defaults to enabled. |
 
 All variables are optional for local development; tracking no-ops when unset.
 
@@ -169,9 +170,10 @@ The workflow deliberately does **not** set `VITE_GTM_ENV_AUTH` /
 
 ### Primary conversion events
 
-`generate_lead` (booking inquiry), `subscribe` (newsletter), and `ticket_click`
-(outbound Eventbrite CTA) are the priority conversions. See
-[`docs/tracking.md`](docs/tracking.md:1) §1–§2 for the full catalogue and schema.
+`generate_lead` (booking inquiry), `subscribe` (newsletter), `ticket_click`
+(checkout started), and `ticket_purchase` (completed Eventbrite sale) are the
+priority conversions. See [`docs/tracking.md`](docs/tracking.md:1) §1–§2 for the
+full catalogue and schema.
 
 ---
 
@@ -218,7 +220,8 @@ at startup. Add it in **two** places:
 | `contact` | `Contact` | [`BookingForm`](src/components/BookingForm.jsx:1) (on view) |
 | `generate_lead` | `Lead` | [`BookingForm`](src/components/BookingForm.jsx:1) (on submit) |
 | `subscribe` | `Subscribe` | [`SubscribeBanner`](src/components/SubscribeBanner.jsx:1) |
-| `ticket_click` | `InitiateCheckout` | [`ShowCard`](src/components/ShowCard.jsx:1) / [`ShowDetail`](src/pages/ShowDetail.jsx:1) |
+| `ticket_click` | `InitiateCheckout` | [`ShowCard`](src/components/ShowCard.jsx:1) / [`EventbriteCheckout`](src/components/EventbriteCheckout.jsx:1) |
+| `ticket_purchase` | `Purchase` | [`EventbriteCheckout`](src/components/EventbriteCheckout.jsx:1) |
 
 ### Verifying the Meta Pixel wiring
 
@@ -235,6 +238,199 @@ hard-coded `fbq(` base code leaked into the build.
 
 For manual QA (Meta Pixel Helper, GTM Preview, Meta Test Events), see
 [`docs/tracking.md`](docs/tracking.md:1) §8.4.
+
+---
+
+## Eventbrite Embedded Checkout
+
+Show detail pages can render Eventbrite's checkout **inside the page** so visitors
+buy tickets without leaving the site, while the show's branding, event context,
+and conversion tracking stay active around the embedded flow. The full contract
+lives in [`docs/tracking.md`](docs/tracking.md:1) §9.
+
+### How it works
+
+1. [`src/lib/eventbrite.js`](src/lib/eventbrite.js:1) resolves the Eventbrite
+   event id — from an explicit `eventbriteId` field on the event document, or by
+   parsing the numeric id out of `ticketUrl` (`…-tickets-<id>`).
+2. [`EventbriteCheckout`](src/components/EventbriteCheckout.jsx:1) renders a
+   **Get Tickets — Checkout Here** button. Clicking it lazily loads Eventbrite's
+   **official** widget script (`eb_widgets.js`) and calls
+   `EBWidgets.createWidget({ widgetType: 'checkout', eventId, iframeContainerId, onOrderComplete })`,
+   so the visitor never leaves the page.
+3. The component fires `ticket_click` (Meta: `InitiateCheckout`) when the embed
+   opens and `ticket_purchase` (Meta: `Purchase`) from the widget's
+   `onOrderComplete` callback.
+
+> **Why the official widget?** We do not hand-roll an iframe at an internal
+> Eventbrite URL. The legacy `/tickets-external?eid=…` endpoint was retired and
+> now returns **HTTP 404** (an unstyled Eventbrite error page), which is what
+> made an earlier hand-rolled embed look broken. The widget script is the only
+> supported integration path and owns the iframe, its sizing, and its
+> completion callback.
+
+### Graceful degradation
+
+| Condition | Behaviour |
+|-----------|-----------|
+| No Eventbrite id / `VITE_EVENTBRITE_EMBED_ENABLED=false` | Original outbound **Get Tickets on Eventbrite** link. |
+| Page not served over `https:` | Outbound link — the widget refuses to embed outside a secure context (plain `http://localhost` shows the link). |
+| Widget script blocked / offline | A 10-second watchdog shows a fallback panel with **Continue to Eventbrite**. |
+| Mobile | Full-width checkout with a taller min-height; header stacks under 640px. |
+| Always | **Open in new tab ↗** and **Buy on Eventbrite instead** links remain available. |
+
+### Eventbrite prerequisites
+
+- Organizer account in good standing with **published, ticketed** events.
+- Eventbrite must permit embedding for the organizer. If the widget reports
+  `widgetNotEligible`, the watchdog falls back to the outbound link.
+- The page must be served over **https** — the widget explicitly refuses to run
+  on non-secure origins.
+- **No API key is required** for the embed. The existing
+  `EVENTBRITE_PRIVATE_TOKEN` is only used by the backend sync function.
+- To pin a specific id, add an `eventbriteId` string field to the event document
+  in Firestore; otherwise it is parsed from `ticketUrl`.
+
+### Verifying the embed
+
+```powershell
+npm run build
+npm run verify:eventbrite   # Eventbrite embed smoke-test
+npm run verify:tracking     # runs verify:gtm + verify:meta + verify:eventbrite
+```
+
+[`scripts/verify-eventbrite.mjs`](scripts/verify-eventbrite.mjs:1) asserts id
+extraction, official widget options, embed gating, the kill-switch, the
+`ticket_purchase` → `Purchase` mapping, SSR safety, and that the built bundle
+loads `eb_widgets.js` and calls `EBWidgets.createWidget`.
+
+---
+
+## Admin Notifications for New Site Messages
+
+Admins are alerted whenever a visitor submits a new **site message** (a booking
+inquiry / contact submission stored in the `inquiries` collection). Delivery uses
+**Firebase Cloud Messaging (FCM) Web Push**, so alerts arrive even when the admin
+has no tab open and the device was asleep.
+
+### Delivery path
+
+```
+Visitor submits BookingForm
+        │  addDoc(collection(db, 'inquiries'), …)
+        ▼
+Firestore: inquiries/{messageId}  ──onCreate──▶  Cloud Function
+                                                 onSiteMessageCreated
+                                                        │
+                        ┌───────────────────────────────┴───────────────────────────────┐
+                        │ (1) persist audit feed                     (2) FCM Web Push   │
+                        ▼                                                               ▼
+        Firestore: notifications/{id}                          admin.messaging().sendEachForMulticast()
+                        │                                                               │
+                        │ (audit / future feed)                                         ▼
+                        ▼                                              Google push service
+        Admin dashboard (authenticated)                                         │
+                                                                                ▼
+                                                          Device OS wakes (even if asleep)
+                                                                                │
+                                                                                ▼
+                                                          Service worker (firebase-messaging-sw.js)
+                                                                                │
+                                              ┌─────────────────────────────────┴───────────────────────────────┐
+                                              │ tab open → onMessage → in-tab desktop notification              │
+                                              │ tab closed → onBackgroundMessage → OS notification              │
+                                              └─────────────────────────────────────────────────────────────────┘
+```
+
+1. [`BookingForm`](src/components/BookingForm.jsx:1) writes a document to
+   `inquiries` (unchanged public write path).
+2. The Firestore trigger `onSiteMessageCreated` in
+   [`functions/index.js`](functions/index.js:1) fires on document creation and does **two** things:
+   - **(1) Persists an audit feed** — writes a derived doc to the `notifications`
+     collection (`{ type, title, body, link, read, createdAt }`).
+   - **(2) Sends a background push** — [`sendPushToAdmins()`](functions/index.js:1)
+     calls `getMessaging().sendEachForMulticast()` to every token in the
+     `adminTokens` collection. Invalid/expired tokens are pruned automatically.
+3. The authenticated Admin view ([`src/pages/Admin.jsx`](src/pages/Admin.jsx:1))
+   registers this device for push via [`src/lib/push.js`](src/lib/push.js:1) and
+   subscribes to foreground FCM messages via `onForegroundMessage`, which renders
+   an in-tab desktop notification while the dashboard is open.
+4. The background service worker
+   [`public/firebase-messaging-sw.js`](public/firebase-messaging-sw.js:1) receives
+   the push when no tab is open and displays it; clicking it deep-links to `/admin`.
+
+> **Single delivery path per state:** the open tab is served by the FCM
+> `onMessage` foreground handler, and the closed tab is served by the service
+> worker's `onBackgroundMessage`. There is no separate `onSnapshot` desktop
+> notification, so a message is never surfaced twice.
+
+### Permission UX (auth-gated)
+
+The browser notification permission prompt is **never** shown on public pages.
+The helpers in [`src/lib/notifications.js`](src/lib/notifications.js:1) and
+[`src/lib/push.js`](src/lib/push.js:1) are imported only by the Admin view, and
+the prompt is only triggered by an explicit **🔔 Enable Notifications** click that
+is rendered *after* the `/admin` authentication gate passes. Unauthenticated
+visitors see the login form and nothing else — no permission request, no push
+registration, no notification code runs.
+
+- **Enable Notifications** — requests permission, registers this device for FCM
+  push (storing the token in `adminTokens`), then fires a test notification.
+- **Send Test** — shown once permission is `granted`; re-fires a test
+  notification so admins can verify the path at any time.
+- **✓ Push enabled on this device** — shown once the FCM token is registered.
+- Only *new* messages trigger alerts (the Cloud Function fires on document
+  creation), so logging in never spams the admin with historical messages.
+
+### Security rules
+
+- The `notifications` collection is **read/update-only for authenticated admins**
+  and can never be created or deleted by clients — only the Cloud Function (Admin
+  SDK, which bypasses rules) writes it.
+- The `adminTokens` collection is **create/update-only for authenticated admins**
+  (each admin registers their own device token). It is **never readable or
+  deletable by clients** — tokens are secrets, and the Cloud Function prunes
+  stale ones via the Admin SDK.
+
+See [`firestore.rules`](firestore.rules:1).
+
+### Required configuration
+
+1. **VAPID key** — generate a Web Push certificate key pair in
+   **Firebase Console → Project Settings → Cloud Messaging → Web Push
+   certificates → "Key pair"**, then set it in two places:
+
+   | Where | Variable |
+   |-------|----------|
+   | Local dev (`.env.local`) | `VITE_FIREBASE_VAPID_KEY` |
+   | Production (GitHub Actions → Variables) | `VITE_FIREBASE_VAPID_KEY` |
+
+   > When `VITE_FIREBASE_VAPID_KEY` is unset, push registration is skipped and the
+   > dashboard falls back to in-tab notifications only.
+
+2. **Deploy** the updated rules and functions:
+
+   ```powershell
+   firebase deploy --only firestore:rules,functions
+   ```
+
+### iOS support (important)
+
+Apple only allows Web Push on iOS **16.4+** and **only when the site is installed
+to the Home Screen** as a PWA. A plain Safari tab cannot receive push. The
+[`public/manifest.webmanifest`](public/manifest.webmanifest:1) and the
+`apple-mobile-web-app-*` meta tags in [`index.html`](index.html:1) make the site
+installable. iPhone admins must:
+
+1. Open the site in Safari.
+2. Tap **Share → Add to Home Screen**.
+3. Launch the installed app, sign in to `/admin`, and tap **🔔 Enable Notifications**.
+
+Android (Chrome), desktop Chrome/Edge/Firefox work without installation.
+
+> **Browser note:** Web Push requires a secure context (HTTPS or `localhost`).
+> When the Notification API or service workers are unavailable, the UI simply
+> hides the notification controls.
 
 ---
 

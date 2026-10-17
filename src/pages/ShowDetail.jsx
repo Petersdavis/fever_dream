@@ -4,7 +4,8 @@ import { useEvents } from '../hooks/useEvents';
 import { findEventBySlug } from '../lib/slugs';
 import SubscribeBanner from '../components/SubscribeBanner';
 import ShowCard from '../components/ShowCard';
-import { trackViewShow, trackTicketClick } from '../lib/tracking';
+import EventbriteCheckout from '../components/EventbriteCheckout';
+import { trackViewShow } from '../lib/tracking';
 
 export default function ShowDetail() {
   const { slug } = useParams();
@@ -164,29 +165,9 @@ export default function ShowDetail() {
 
             {/* Column 2: Ticket CTA + Rich Description */}
             <div className="show-detail-right-col">
-              {/* Primary Ticket CTA */}
-              <div className="show-detail-cta-wrapper">
-                <a
-                  href={event.ticketUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="btn btn-primary show-detail-primary-cta"
-                  onClick={() =>
-                    trackTicketClick({
-                      showId: event.id,
-                      showTitle: event.title,
-                      venueCity: event.venueCity,
-                      ticketUrl: event.ticketUrl,
-                      placement: 'detail',
-                    })
-                  }
-                >
-                  Get Tickets on Eventbrite →
-                </a>
-                <span className="cta-disclaimer">
-                  Fast, secure checkout via Eventbrite. Instant ticket delivery.
-                </span>
-              </div>
+              {/* Primary Ticket CTA — embedded Eventbrite checkout when the
+                  event can be embedded, otherwise the outbound link. */}
+              <EventbriteCheckout event={event} />
 
               {/* Event Description / Summary */}
               {event.descriptionHtml ? (

@@ -30,12 +30,13 @@ event.
 | 1 | **Booking inquiry submitted** | [`BookingForm`](../src/components/BookingForm.jsx:14) on `/book` | `generate_lead` | `Lead` |
 | 2 | **Contact / inquiry intent** (form viewed or started) | [`Book`](../src/pages/Book.jsx:1) page | `contact` | `Contact` |
 | 3 | **Newsletter / subscribe** | [`SubscribeBanner`](../src/components/SubscribeBanner.jsx:13) | `subscribe` | `Subscribe` |
-| 4 | **Outbound ticket click** | [`ShowCard`](../src/components/ShowCard.jsx:70) and [`ShowDetail`](../src/pages/ShowDetail.jsx:155) CTAs | `ticket_click` | `InitiateCheckout` |
-| 5 | **Show detail view** (high-intent engagement) | [`ShowDetail`](../src/pages/ShowDetail.jsx:7) | `view_show` | `ViewContent` |
-| 6 | **Page view** (baseline) | All routes | `page_view` | `PageView` |
+| 4 | **Ticket checkout started** (outbound click or embed opened) | [`ShowCard`](../src/components/ShowCard.jsx:70) and [`EventbriteCheckout`](../src/components/EventbriteCheckout.jsx:1) | `ticket_click` | `InitiateCheckout` |
+| 5 | **Ticket sale completed** (Eventbrite order) | [`EventbriteCheckout`](../src/components/EventbriteCheckout.jsx:1) | `ticket_purchase` | `Purchase` |
+| 6 | **Show detail view** (high-intent engagement) | [`ShowDetail`](../src/pages/ShowDetail.jsx:7) | `view_show` | `ViewContent` |
+| 7 | **Page view** (baseline) | All routes | `page_view` | `PageView` |
 
 **Priority conversions** (used for ad optimization and reporting): `generate_lead`,
-`subscribe`, and `ticket_click`.
+`subscribe`, `ticket_click`, and `ticket_purchase`.
 
 ---
 
@@ -64,7 +65,8 @@ double-counting.
 |---------|------------------|----------------------|
 | `page_view` | `page` | — |
 | `view_show` | `engagement` | `show_id`, `show_title`, `venue_city`, `price_from` |
-| `ticket_click` | `lead` | `show_id`, `show_title`, `venue_city`, `ticket_url`, `placement` (`card` \| `detail`) |
+| `ticket_click` | `lead` | `show_id`, `show_title`, `venue_city`, `ticket_url`, `placement` (`card` \| `detail` \| `embed`) |
+| `ticket_purchase` | `lead` | `show_id`, `show_title`, `venue_city`, `value`, `currency`, `order_id`, `quantity`, `source` (`embed` \| `return_url`) |
 | `contact` | `engagement` | `form_location` (`book`) |
 | `generate_lead` | `lead` | `lead_type` (`booking_inquiry`), `event_type` |
 | `subscribe` | `lead` | `source` (`homepage_banner` \| `show_detail`), `location_consent` (boolean) |
@@ -173,6 +175,7 @@ The tracking stack is configured through Vite environment variables (prefix
 | `VITE_GTM_CONTAINER_ID` | `gtm-container-installation` | GTM container id, e.g. `GTM-XXXXXXX`. |
 | `VITE_META_PIXEL_ID` | `meta-pixel-conversion-tracking` | Meta Pixel id, injected via GTM. |
 | `VITE_TRACKING_DEBUG` | all | When `"true"`, helpers log pushes to the console. |
+| `VITE_EVENTBRITE_EMBED_ENABLED` | `eventbrite-embedded-checkout` | Set to `"false"` to force the outbound ticket link everywhere. Defaults to enabled. |
 
 Add these to `.env.example` and the deployment environment (Firebase Hosting /
 GitHub Actions) as the dependent tasks are implemented. See the root
@@ -225,6 +228,7 @@ fire the matching standard event. The mapping is defined once in
 | `generate_lead` | `Lead` | `meta_event_id` |
 | `subscribe` | `Subscribe` | `meta_event_id` |
 | `ticket_click` | `InitiateCheckout` | `meta_event_id`, `meta_content_ids`, `meta_content_type`, `meta_content_name`, `meta_value`, `meta_currency` |
+| `ticket_purchase` | `Purchase` | `meta_event_id`, `meta_content_ids`, `meta_content_type`, `meta_content_name`, `meta_value`, `meta_currency` |
 
 Every push also carries `meta_event_id`, which mirrors the canonical `event_id`
 (§4). GTM forwards it to Meta as `eventID` so browser and any future
@@ -315,3 +319,139 @@ consent is granted (§5.1). No PII is ever forwarded (§2.3): only non-identifyi
 descriptors (`show_id`, `show_title`, `event_type`, numeric `value`) are sent.
 The `subscribe` event forwards a boolean `location_consent` flag only — raw
 coordinates stay in Firestore.
+
+---
+
+## 9. Eventbrite Embedded Checkout
+
+This section is the contract for `eventbrite-embedded-checkout`. The show detail
+page can render Eventbrite's checkout **inside the page** so visitors complete a
+purchase without leaving the site, while keeping the show's branding, event
+context, and conversion tracking active around the embedded flow.
+
+### 9.1 Where it lives
+
+| Piece | File | Responsibility |
+|-------|------|----------------|
+| Config helpers | [`src/lib/eventbrite.js`](../src/lib/eventbrite.js:1) | Derive the Eventbrite event id, build the official widget options, honour the kill-switch. SSR-safe, side-effect free. |
+| UI component | [`src/components/EventbriteCheckout.jsx`](../src/components/EventbriteCheckout.jsx:1) | Renders the CTA, loads the official widget on demand, handles load failure, fires conversion events. |
+| Page wiring | [`src/pages/ShowDetail.jsx`](../src/pages/ShowDetail.jsx:1) | Replaces the old outbound CTA with `<EventbriteCheckout event={event} />`. |
+
+The embed is **opt-in per show**. It is enabled only when an Eventbrite event id
+can be resolved:
+
+1. an explicit `eventbriteId` field on the event document (preferred), or
+2. the numeric id parsed from `ticketUrl` (`…-tickets-<id>`).
+
+When neither is available — or `VITE_EVENTBRITE_EMBED_ENABLED=false` — the
+component renders the original outbound **Get Tickets on Eventbrite** link, so
+no show ever loses its purchase path.
+
+### 9.2 Official widget integration
+
+We use Eventbrite's **official** embedded checkout widget, not a hand-rolled
+iframe:
+
+```js
+// loaded lazily from https://www.eventbrite.com/static/widgets/eb_widgets.js
+window.EBWidgets.createWidget({
+  widgetType: 'checkout',
+  eventId: '<eventbriteId>',
+  iframeContainerId: 'eventbrite-widget-container-<eventbriteId>',
+  iframeContainerHeight: 620,
+  onOrderComplete: ({ orderId }) => { /* fires ticket_purchase */ },
+});
+```
+
+The widget owns the iframe, its URL, its auto-sizing and its postMessage
+protocol. We only supply the event id, the container element, and the
+completion callback.
+
+> **Do not** point an iframe at an internal Eventbrite URL. The legacy
+> `/tickets-external?eid=…` endpoint was retired and now returns **HTTP 404**
+> (an unstyled Eventbrite error page), which is exactly what made an earlier
+> hand-rolled embed look broken. `/checkout-external` is likewise an internal
+> URL that Eventbrite can change without notice.
+
+The widget script is injected only after the visitor clicks **Get Tickets —
+Checkout Here**, so the third-party script never blocks initial render or the
+prerender step.
+
+### 9.3 Graceful degradation
+
+| Condition | Behaviour |
+|-----------|-----------|
+| No Eventbrite id / kill-switch off | Outbound ticket link (original CTA). |
+| Browser lacks iframe support | Outbound ticket link. |
+| Page not served over `https:` | Outbound ticket link — Eventbrite's widget refuses to embed outside a secure context (so plain `http://localhost` shows the link). |
+| Widget script blocked / offline | A 10-second watchdog flips to a fallback panel with a **Continue to Eventbrite** button. |
+| Mobile | The widget container is full-width with a taller min-height; the header stacks vertically under 640px. |
+| Any time | An **Open in new tab ↗** link and a **Buy on Eventbrite instead** link are always present. |
+
+### 9.4 Conversion events
+
+| Event | When it fires | Meta standard event |
+|-------|---------------|---------------------|
+| `ticket_click` | Visitor opens the embed (`placement: 'embed'`) or clicks any outbound link (`placement: 'detail'`). | `InitiateCheckout` |
+| `ticket_purchase` | A completed order is detected. | `Purchase` |
+
+`ticket_purchase` is detected in two ways, both guarded by a one-shot ref so it
+never double-fires:
+
+1. **Embed** — the widget's documented `onOrderComplete({ orderId })` callback.
+   This is a supported API, not message sniffing: we never parse Eventbrite's
+   internal `postMessage` payloads.
+2. **Return URL** — when the visitor completes checkout in a new tab and returns
+   with `?checkout=complete` (optionally `&order_id=…`), the component fires the
+   event and then strips the marker from the URL via `history.replaceState` so a
+   refresh cannot re-fire it.
+
+Payload: `show_id`, `show_title`, `venue_city`, `value` (order total, major
+units), `currency` (defaults to `CAD`), `order_id`, `quantity`, `source`
+(`embed` | `return_url`). No PII is forwarded — Eventbrite owns the buyer data.
+
+### 9.5 Eventbrite account prerequisites
+
+The embed requires **no code changes** in the Eventbrite dashboard, but the
+organizer account must satisfy Eventbrite's embed policy:
+
+1. **Organizer account in good standing** — embedded checkout is available to
+   organizers whose events are published and not restricted.
+2. **Published, ticketed events** — the event must be live and selling tickets
+   (free events render a registration form instead of a paid checkout).
+3. **Embedding allowed** — Eventbrite must permit embedding for the organizer.
+   If the widget reports `widgetNotEligible`, the watchdog falls back to the
+   outbound link automatically.
+4. **HTTPS** — the widget explicitly refuses to run on non-secure origins. Use
+   `https://` (Firebase Hosting, or a tunnel) when testing the embed locally.
+5. **Ticket URL present** — the sync script already stores `ticketUrl`; the
+   numeric id is parsed from it. To pin a specific id, add an `eventbriteId`
+   string field to the event document in Firestore.
+
+> **No API key is needed for the embed.** The existing `EVENTBRITE_PRIVATE_TOKEN`
+> is only used by the backend sync function.
+
+### 9.6 Verification
+
+```powershell
+npm run build
+npm run verify:eventbrite   # Eventbrite embed smoke-test
+npm run verify:tracking     # runs verify:gtm + verify:meta + verify:eventbrite
+```
+
+[`scripts/verify-eventbrite.mjs`](../scripts/verify-eventbrite.mjs:1) asserts id
+extraction, official widget options, embed gating, the kill-switch, the
+`ticket_purchase` → `Purchase` mapping, SSR safety, and that the built bundle
+loads `eb_widgets.js` and calls `EBWidgets.createWidget`.
+
+**Manual QA:**
+
+1. Serve the site over **https** (the widget refuses to embed otherwise).
+2. Open a show detail page and click **Get Tickets — Checkout Here**.
+3. Confirm the Eventbrite checkout renders in-page and the page URL does not
+   change.
+4. With `VITE_TRACKING_DEBUG=true`, confirm one `ticket_click` fires on open and
+   one `ticket_purchase` fires after a test order.
+5. Block the widget script (e.g. an extension) and confirm the fallback panel
+   appears within ~10 seconds.
+6. On a phone, confirm the checkout is full-width and scrollable.
