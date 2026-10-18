@@ -75,9 +75,17 @@ export default function ShowDetail() {
     ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${event.venueName || ''} ${event.venueAddress}`)}`
     : null;
 
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
   // Filter other upcoming shows to recommend
   const otherShows = events
-    .filter((e) => e.id !== event.id)
+    .filter((e) => {
+      if (e.id === event.id) return false;
+
+      const eventDate = new Date(e.start || e.startUtc);
+      return !Number.isNaN(eventDate.getTime()) && eventDate >= today;
+    })
     .slice(0, 3);
 
   return (
