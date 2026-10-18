@@ -2189,6 +2189,51 @@ h2 {
   }
 }
 
+@media (max-width: 768px) {
+  .show-detail-page {
+    overflow-x: clip;
+  }
+
+  .show-detail-page .container {
+    padding-left: 0;
+    padding-right: 0;
+    overflow-x: clip;
+  }
+
+  .show-detail-breadcrumb {
+    margin: 16px 16px 20px;
+  }
+
+  .show-detail-card {
+    margin-bottom: 40px;
+    border-radius: 0;
+    border-left: 0;
+    border-right: 0;
+    padding: 24px 16px;
+  }
+
+  .show-detail-header {
+    margin-bottom: 24px;
+    padding-bottom: 20px;
+  }
+
+  .show-detail-grid {
+    gap: 24px;
+  }
+
+  .show-detail-left-col {
+    gap: 24px;
+  }
+
+  .show-detail-meta-box {
+    padding: 18px 16px;
+  }
+
+  .show-detail-more-section {
+    padding: 0 16px;
+  }
+}
+
 .shows-loading,
 .shows-empty {
   text-align: center;

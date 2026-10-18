@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { useState } from 'react';
 import { collection, doc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../lib/firebase';
@@ -100,6 +101,9 @@ export default function SubscribeBanner() {
               <p>
                 Thanks for subscribing. We'll send you early-bird announcements, secret codes, and tour drops near you.
               </p>
+              <Link to="/#shows" className="btn btn-primary">
+                Back to shows
+              </Link>
             </div>
           ) : status === 'prompting-location' || status === 'saving' ? (
             <div className="subscribe-location-prompt">
