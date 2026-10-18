@@ -15,6 +15,14 @@ const Home = () => {
     const location = useLocation();
     const { events, loading } = useEvents();
 
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const upcomingEvents = events.filter((event) => {
+        const eventDate = new Date(event.start || event.startUtc);
+        return !Number.isNaN(eventDate.getTime()) && eventDate >= today;
+    });
+
     useEffect(() => {
         if (location.hash) {
             const targetId = location.hash.replace('#', '');
@@ -78,7 +86,7 @@ const Home = () => {
                 </div>
             </section>
 
-            <UpcomingShows events={events} loading={loading} />
+            <UpcomingShows events={upcomingEvents} loading={loading} />
 
             <SocialProofBanner />
 

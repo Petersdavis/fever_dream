@@ -223,7 +223,7 @@ export default function EventbriteCheckout({ event }) {
             className="btn btn-primary show-detail-primary-cta"
             onClick={handleOpen}
           >
-            Get Tickets — Checkout Here →
+            Get Tickets →
           </button>
           <span className="cta-disclaimer">
             Secure checkout powered by Eventbrite. You won't leave this page.

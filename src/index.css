@@ -2142,6 +2142,34 @@ h2 {
   margin-bottom: 0.5em;
 }
 
+.show-detail-description img,
+.show-detail-description video,
+.show-detail-description iframe,
+.show-detail-description object,
+.show-detail-description embed {
+  display: inline-block !important;
+  height: auto;
+  vertical-align: top;
+}
+
+.show-detail-description > :last-child > :nth-child(n + 2) {
+  display: inline-block !important;
+  max-width: 45% !important;
+  width: 45% !important;
+  vertical-align: top;
+  margin: 1.5% !important;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.show-detail-description video,
+.show-detail-description iframe,
+.show-detail-description object,
+.show-detail-description embed {
+  aspect-ratio: 16 / 9;
+}
+
 .show-detail-more-section {
   margin-top: 40px;
 }
