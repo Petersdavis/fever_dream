@@ -20,6 +20,9 @@
 /** GTM Consent Mode storage key used by the in-app banner. */
 export const GTM_CONSENT_STORAGE_KEY = 'fever_dream_gtm_consent';
 
+/** 24-hour TTL for a declined consent choice. */
+export const GTM_CONSENT_DECLINE_TTL_MS = 24 * 60 * 60 * 1000;
+
 /** Normalized consent states written to both storage and GTM. */
 export const GTM_CONSENT_STATES = Object.freeze({
   GRANTED: 'granted',
@@ -107,6 +110,32 @@ export function buildConsentDefaultSnippet(containerId) {
       analytics_storage: 'denied',
       wait_for_update: 500
     });
+    try {
+      var storedConsent = window.localStorage && window.localStorage.getItem('${GTM_CONSENT_STORAGE_KEY}');
+      if (storedConsent) {
+        var parsedConsent;
+        try {
+          parsedConsent = JSON.parse(storedConsent);
+        } catch {
+          parsedConsent = storedConsent;
+        }
+
+        var consentValue = typeof parsedConsent === 'string' ? parsedConsent : parsedConsent && parsedConsent.value;
+        var expiresAt = parsedConsent && typeof parsedConsent === 'object' ? parsedConsent.expiresAt : null;
+        var isExpired = typeof expiresAt === 'number' && Date.now() >= expiresAt;
+
+        if (!isExpired && consentValue === 'granted') {
+          gtag('consent', 'update', {
+            ad_storage: 'granted',
+            ad_user_data: 'granted',
+            ad_personalization: 'granted',
+            analytics_storage: 'granted'
+          });
+        }
+      }
+    } catch {
+      // Ignore storage / parsing errors and fall back to the denied default.
+    }
   </script>`;
 }
 
@@ -122,7 +151,23 @@ export function getStoredGtmConsent() {
     }
 
     const value = window.localStorage.getItem(GTM_CONSENT_STORAGE_KEY);
-    return value === GTM_CONSENT_STATES.GRANTED || value === GTM_CONSENT_STATES.DENIED ? value : '';
+    if (!value) return '';
+
+    if (value === GTM_CONSENT_STATES.GRANTED) {
+      return GTM_CONSENT_STATES.GRANTED;
+    }
+
+    let parsed = null;
+    try {
+      parsed = JSON.parse(value);
+    } catch {
+      return '';
+    }
+
+    if (!parsed || parsed.value !== GTM_CONSENT_STATES.DENIED) return '';
+    if (typeof parsed.expiresAt === 'number' && Date.now() >= parsed.expiresAt) return '';
+
+    return GTM_CONSENT_STATES.DENIED;
   } catch {
     return '';
   }
@@ -137,7 +182,17 @@ export function setStoredGtmConsent(consent) {
   const normalized = consent === GTM_CONSENT_STATES.GRANTED ? GTM_CONSENT_STATES.GRANTED : GTM_CONSENT_STATES.DENIED;
   try {
     if (typeof window !== 'undefined' && typeof window.localStorage !== 'undefined') {
-      window.localStorage.setItem(GTM_CONSENT_STORAGE_KEY, normalized);
+      if (normalized === GTM_CONSENT_STATES.GRANTED) {
+        window.localStorage.setItem(GTM_CONSENT_STORAGE_KEY, normalized);
+      } else {
+        window.localStorage.setItem(
+          GTM_CONSENT_STORAGE_KEY,
+          JSON.stringify({
+            value: normalized,
+            expiresAt: Date.now() + GTM_CONSENT_DECLINE_TTL_MS,
+          })
+        );
+      }
     }
   } catch {
     // Ignore storage errors; the in-memory choice still applies for this session.

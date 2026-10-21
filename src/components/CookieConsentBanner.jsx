@@ -1,61 +1,40 @@
 import { useEffect, useState } from 'react';
 import {
   GTM_CONSENT_STATES,
-  clearStoredGtmConsent,
   getStoredGtmConsent,
   setStoredGtmConsent,
-  syncStoredGtmConsent,
   updateGtmConsent,
 } from '../lib/gtm.js';
 
 const CONSENT_COPY = {
   title: 'Cookie consent',
   description:
-    'We use analytics and marketing cookies to measure traffic, improve the site, and support our ads. Accept to enable those tags, or decline to keep them off.',
+    'We use analytics and marketing cookies to measure traffic, improve the site, and support our ads.',
   acceptLabel: 'Accept cookies',
   declineLabel: 'Decline',
-  manageLabel: 'Manage cookies',
 };
 
 export default function CookieConsentBanner() {
   const [storedConsent, setStoredConsent] = useState(() => getStoredGtmConsent());
-  const [isVisible, setIsVisible] = useState(() => !getStoredGtmConsent());
 
   useEffect(() => {
-    if (storedConsent) {
-      syncStoredGtmConsent();
-    }
+    if (!storedConsent) return;
+    updateGtmConsent(storedConsent);
   }, [storedConsent]);
 
   const handleChoice = (consent) => {
     const normalized = setStoredGtmConsent(consent);
     setStoredConsent(normalized);
     updateGtmConsent(normalized);
-    setIsVisible(false);
   };
 
-  const handleReset = () => {
-    clearStoredGtmConsent();
-    setStoredConsent('');
-    setIsVisible(true);
-    updateGtmConsent(GTM_CONSENT_STATES.DENIED);
-  };
-
-  if (!isVisible && !storedConsent) {
+  if (storedConsent === GTM_CONSENT_STATES.GRANTED || storedConsent === GTM_CONSENT_STATES.DENIED) {
     return null;
   }
 
-  if (!isVisible && storedConsent) {
-    return (
-      <button type="button" className="cookie-consent-launcher" onClick={() => setIsVisible(true)}>
-        Cookie settings
-      </button>
-    );
-  }
-
   return (
-    <div className="cookie-consent" role="dialog" aria-modal="false" aria-live="polite" aria-label={CONSENT_COPY.title}>
-      <div className="cookie-consent__content">
+    <div className="cookie-consent-shell">
+      <div className="subscribe-banner-card cookie-consent-card" role="dialog" aria-modal="false" aria-live="polite" aria-label={CONSENT_COPY.title}>
         <div>
           <p className="cookie-consent__eyebrow">{CONSENT_COPY.title}</p>
           <p className="cookie-consent__description">{CONSENT_COPY.description}</p>
@@ -75,9 +54,6 @@ export default function CookieConsentBanner() {
             onClick={() => handleChoice(GTM_CONSENT_STATES.DENIED)}
           >
             {CONSENT_COPY.declineLabel}
-          </button>
-          <button type="button" className="cookie-consent__link" onClick={handleReset}>
-            {CONSENT_COPY.manageLabel}
           </button>
         </div>
       </div>

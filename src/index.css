@@ -707,6 +707,50 @@ h2 {
   overflow: hidden;
 }
 
+.cookie-consent-shell {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 24px;
+  z-index: 1200;
+  padding: 0 20px;
+  pointer-events: none;
+}
+
+.cookie-consent-card {
+  max-width: 860px;
+  margin: 0 auto;
+  text-align: left;
+  pointer-events: auto;
+}
+
+.cookie-consent__eyebrow {
+  margin: 0 0 10px;
+  font-family: var(--font-logo);
+  font-size: 1rem;
+  letter-spacing: 0.04em;
+  color: var(--accent-color);
+  text-transform: uppercase;
+}
+
+.cookie-consent__description {
+  margin: 0;
+  color: var(--text-dim);
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+.cookie-consent__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.cookie-consent__button {
+  min-width: 160px;
+}
+
 .subscribe-banner-card::before {
   content: "";
   position: absolute;
