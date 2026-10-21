@@ -26,9 +26,9 @@
  */
 const CANONICAL_EVENTS = Object.freeze({
   PAGE_VIEW: 'page_view',
-  VIEW_SHOW: 'view_show',
-  TICKET_CLICK: 'ticket_click',
-  TICKET_PURCHASE: 'ticket_purchase',
+  VIEW_SHOW: 'view_item',
+  TICKET_CLICK: 'begin_checkout',
+  TICKET_PURCHASE: 'purchase',
   CONTACT: 'contact',
   GENERATE_LEAD: 'generate_lead',
   SUBSCRIBE: 'subscribe',

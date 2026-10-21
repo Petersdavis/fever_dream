@@ -1,4 +1,4 @@
-import { Outlet } from 'react-router-dom';
+import { Outlet, Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import BackgroundBubbles from '../components/BackgroundBubbles';
 import RouteTracker from '../components/RouteTracker';
@@ -17,7 +17,7 @@ const MainLayout = () => {
                     <div className="footer-brand">
                         <span className="footer-logo">Fever Dream Comedy</span>
                         <p className="footer-tagline">
-                            Home of <em>Girl Night</em> — Ontario's premier all-women comedy showcases and live productions.
+                            Ontario&apos;s comedy production company featuring up-and-coming and professional female comics — home of <em>Girl Night</em> live shows, corporate events.
                         </p>
                     </div>
 
@@ -29,7 +29,7 @@ const MainLayout = () => {
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="footer-social-link"
-                                title="Fever Dream Instagram"
+                                title="Fever Dream Comedy Instagram"
                             >
                                 Instagram ↗
                             </a>
@@ -38,7 +38,7 @@ const MainLayout = () => {
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="footer-social-link"
-                                title="Fever Dream Facebook"
+                                title="Fever Dream Comedy Facebook"
                             >
                                 Facebook ↗
                             </a>
@@ -47,7 +47,7 @@ const MainLayout = () => {
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="footer-social-link"
-                                title="Fever Dream Eventbrite"
+                                title="Fever Dream Comedy Eventbrite"
                             >
                                 Eventbrite ↗
                             </a>
@@ -55,7 +55,9 @@ const MainLayout = () => {
                     </div>
 
                     <div className="footer-bottom">
-                        <p>&copy; {new Date().getFullYear()} Fever Dream Comedy. All rights reserved.</p>
+                        <p>
+                            &copy; {new Date().getFullYear()} Fever Dream Comedy. Producing live stand-up across Kitchener-Waterloo, Guelph, London, and Southwestern Ontario. All rights reserved.
+                        </p>
                     </div>
                 </div>
             </footer>
