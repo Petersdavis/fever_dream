@@ -1,7 +1,8 @@
-import { Outlet, Link } from 'react-router-dom';
+import { Outlet } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import BackgroundBubbles from '../components/BackgroundBubbles';
 import RouteTracker from '../components/RouteTracker';
+import CookieConsentBanner from '../components/CookieConsentBanner';
 
 const MainLayout = () => {
     return (
@@ -12,6 +13,7 @@ const MainLayout = () => {
             <main className="main-content">
                 <Outlet />
             </main>
+            <CookieConsentBanner />
             <footer className="footer">
                 <div className="container footer-container">
                     <div className="footer-brand">

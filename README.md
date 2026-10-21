@@ -133,6 +133,50 @@ Key properties:
 The snippet builders live in [`src/lib/gtm.js`](src/lib/gtm.js:1) and are shared
 by the Vite plugin, the prerender guard, and the verification script.
 
+### Consent popup setup
+
+The site now ships with a first-party cookie consent banner that defaults GTM to
+`denied` until a visitor chooses otherwise.
+
+What the banner does:
+
+- stores the user's choice in `localStorage` under `fever_dream_gtm_consent`
+- calls `gtag('consent', 'update', …)` with either `granted` or `denied`
+- re-applies the stored choice on later visits
+- exposes a small “Cookie settings” launcher so the banner can be reopened
+
+No extra Google Tag Manager template is required for the popup itself. The GTM
+container only needs the standard Consent Mode defaults and the tag-level consent
+checks described below.
+
+#### Google Tag Manager setup steps
+
+1. Open **GTM → Admin → Container Settings** and confirm the container id matches
+   `VITE_GTM_CONTAINER_ID` in the deployment environment.
+2. Leave the existing Consent Mode defaults in place. The app injects
+   `ad_storage`, `ad_user_data`, `ad_personalization`, and `analytics_storage`
+   as `denied` before GTM loads.
+3. For every marketing tag, add **Additional Consent Checks** for:
+   - `ad_storage`
+   - `ad_user_data`
+   - `ad_personalization`
+   - `analytics_storage`
+4. If you use GA4, configure the GA4 tag to read from the `dataLayer` as usual;
+   it can remain cookieless until consent is granted.
+5. Keep Meta Pixel and any other ad tags behind the same consent checks so they do
+   not fire until the visitor accepts cookies.
+6. In Preview mode, verify that the initial page load shows Consent Mode as denied,
+   then accept cookies and confirm the consent update is sent before the next
+   marketing tag fires.
+
+#### Local behavior
+
+- If the visitor accepts, the banner disappears and the choice is persisted.
+- If the visitor declines, the choice is persisted and tags remain blocked.
+- If the visitor clears site data, the banner appears again on the next visit.
+- If `VITE_GTM_CONTAINER_ID` is unset, the banner still renders but GTM remains a
+  no-op.
+
 ### Verifying the GTM installation
 
 After a build, run the smoke-test:
@@ -443,5 +487,4 @@ Go to **Settings → Secrets and variables → Actions** in your GitHub reposito
 
 1. `EVENTBRITE_PRIVATE_TOKEN`: Your Eventbrite private token.
 2. `FIREBASE_SERVICE_ACCOUNT_FEVERDREAM_3BAFE`: The JSON key of a Firebase Service Account with Hosting Admin permissions (generated via Google Cloud Console under IAM & Admin → Service Accounts, or running `firebase init hosting:github`).
-
 

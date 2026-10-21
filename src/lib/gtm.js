@@ -17,6 +17,15 @@
  *    (docs/tracking.md §5.1).
  */
 
+/** GTM Consent Mode storage key used by the in-app banner. */
+export const GTM_CONSENT_STORAGE_KEY = 'fever_dream_gtm_consent';
+
+/** Normalized consent states written to both storage and GTM. */
+export const GTM_CONSENT_STATES = Object.freeze({
+  GRANTED: 'granted',
+  DENIED: 'denied',
+});
+
 /**
  * Read an env var from either the Vite build context (`import.meta.env`) or a
  * plain Node script context (`process.env`). This lets the same module power the
@@ -102,6 +111,100 @@ export function buildConsentDefaultSnippet(containerId) {
 }
 
 /**
+ * Read the stored consent preference from localStorage.
+ * Returns `''` when no valid preference exists.
+ * @returns {string}
+ */
+export function getStoredGtmConsent() {
+  try {
+    if (typeof window === 'undefined' || typeof window.localStorage === 'undefined') {
+      return '';
+    }
+
+    const value = window.localStorage.getItem(GTM_CONSENT_STORAGE_KEY);
+    return value === GTM_CONSENT_STATES.GRANTED || value === GTM_CONSENT_STATES.DENIED ? value : '';
+  } catch {
+    return '';
+  }
+}
+
+/**
+ * Persist the user's consent preference in localStorage.
+ * @param {'granted'|'denied'} consent
+ * @returns {'granted'|'denied' | null}
+ */
+export function setStoredGtmConsent(consent) {
+  const normalized = consent === GTM_CONSENT_STATES.GRANTED ? GTM_CONSENT_STATES.GRANTED : GTM_CONSENT_STATES.DENIED;
+  try {
+    if (typeof window !== 'undefined' && typeof window.localStorage !== 'undefined') {
+      window.localStorage.setItem(GTM_CONSENT_STORAGE_KEY, normalized);
+    }
+  } catch {
+    // Ignore storage errors; the in-memory choice still applies for this session.
+  }
+  return normalized;
+}
+
+/**
+ * Clear the stored consent preference so the banner can be shown again.
+ * @returns {void}
+ */
+export function clearStoredGtmConsent() {
+  try {
+    if (typeof window !== 'undefined' && typeof window.localStorage !== 'undefined') {
+      window.localStorage.removeItem(GTM_CONSENT_STORAGE_KEY);
+    }
+  } catch {
+    // Ignore storage errors.
+  }
+}
+
+/**
+ * Convert a normalized consent choice into a GTM consent payload.
+ * @param {'granted'|'denied'} consent
+ * @returns {{ ad_storage: string, ad_user_data: string, ad_personalization: string, analytics_storage: string }}
+ */
+export function buildGtmConsentPayload(consent) {
+  const normalized = consent === GTM_CONSENT_STATES.GRANTED ? GTM_CONSENT_STATES.GRANTED : GTM_CONSENT_STATES.DENIED;
+  return {
+    ad_storage: normalized,
+    ad_user_data: normalized,
+    ad_personalization: normalized,
+    analytics_storage: normalized,
+  };
+}
+
+/**
+ * Apply a GTM consent update in the browser.
+ * @param {'granted'|'denied'} consent
+ * @returns {Record<string, string> | null}
+ */
+export function updateGtmConsent(consent) {
+  if (typeof window === 'undefined') return null;
+
+  const payload = buildGtmConsentPayload(consent);
+  window.dataLayer = window.dataLayer || [];
+  window.gtag =
+    window.gtag ||
+    function gtag() {
+      window.dataLayer.push(arguments);
+    };
+
+  window.gtag('consent', 'update', payload);
+  return payload;
+}
+
+/**
+ * Re-apply a stored consent preference, if one exists.
+ * @returns {Record<string, string> | null}
+ */
+export function syncStoredGtmConsent() {
+  const storedConsent = getStoredGtmConsent();
+  if (!storedConsent) return null;
+  return updateGtmConsent(storedConsent);
+}
+
+/**
  * Build the GTM `<head>` container snippet.
  * Uses the async loader so it never blocks initial render.
  * @param {string} [containerId] - Explicit container id; falls back to env.
@@ -143,7 +246,15 @@ export default {
   getGtmContainerId,
   getGtmEnvTokens,
   getGtmEnvQuery,
+  GTM_CONSENT_STORAGE_KEY,
+  GTM_CONSENT_STATES,
   buildConsentDefaultSnippet,
+  getStoredGtmConsent,
+  setStoredGtmConsent,
+  clearStoredGtmConsent,
+  buildGtmConsentPayload,
+  updateGtmConsent,
+  syncStoredGtmConsent,
   buildGtmHeadSnippet,
   buildGtmBodySnippet,
 };
