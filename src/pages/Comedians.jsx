@@ -1,6 +1,8 @@
 import avatarPlaceholder from '../assets/avatar-placeholder.svg';
 import reneeHeadshot from '../assets/headshots/renee_groux.jpg';
 import lindsayHeadshot from '../assets/headshots/lindsay_endersby.jpg';
+import theaHeadshot from '../assets/headshots/thea_rainford.jpeg';
+import kaitlinHeadshot from '../assets/headshots/kaitlin_shuvera.jpeg';
 
 const Comedians = () => {
     return (
@@ -62,18 +64,47 @@ const Comedians = () => {
 
                     <div className="performers-grid">
                         {[
-                            { name: "Comedian One", handle: "@comedian_one" },
-                            { name: "Comedian Two", handle: "@comedian_two" },
-                            { name: "Comedian Three", handle: "@comedian_three" },
-                            { name: "Comedian Four", handle: "@comedian_four" }
+                            {
+                                name: "Thea Rainford",
+                                handle: "@thea.rain4d",
+                                image: theaHeadshot,
+                                bio: "Thea Rainford is a Toronto-based comedian who has performed across Canada and the United States. She has appeared at NXNE, The Nubian Comedy Revue and a range of emerging comedian showcases. She performs regularly in clubs and independently produced shows across the GTA and Southern Ontario and can be heard on Counterfeit Sounds Legit Volume 003.",
+                                links: [
+                                    { label: "Instagram", href: "https://www.instagram.com/thea.rain4d/" },
+                                    { label: "TikTok", href: "https://www.tiktok.com/@thea.the.kid" }
+                                ]
+                            },
+                            {
+                                name: "Kaitlin Shuvera",
+                                handle: "",
+                                image: kaitlinHeadshot,
+                                bio: "Kaitlin Shuvera has been displaying her dry wit and unique perspective on comedy stages across the country since REDACTED. She can be heard on CBC Radio’s LOL and The Debaters. She has appeared at the Halifax Pop explosion where she performed with Mark Little and opened for Eric Andre and has also opened for Debra Digiovanni. She was a finalist in the 2025 Sorry Comedy Festival Next Best Comic Competition and opened for Sophie Buddle and Allie Macofsky. She recently listened to Red Wine Supernova by Chappell Roan 27 times in a row.",
+                                links: []
+                            }
                         ].map((performer, index) => (
-                            <a href={`https://instagram.com/${performer.handle.substring(1)}`} target="_blank" rel="noopener noreferrer" className="performer-card" key={index}>
+                            <div className="performer-card" key={index}>
                                 <div className="performer-img-wrapper">
-                                    <img src={avatarPlaceholder} alt={performer.name} className="performer-headshot" />
+                                    <img src={performer.image || avatarPlaceholder} alt={`${performer.name} headshot`} className="performer-headshot" />
                                 </div>
                                 <h4 className="performer-name">{performer.name}</h4>
-                                <p className="performer-handle">{performer.handle}</p>
-                            </a>
+                                {performer.handle ? <p className="performer-handle">{performer.handle}</p> : null}
+                                <p className="performer-bio">{performer.bio}</p>
+                                {performer.links.length > 0 ? (
+                                    <div className="founder-socials">
+                                        {performer.links.map((link) => (
+                                            <a
+                                                key={link.label}
+                                                href={link.href}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="founder-social-link"
+                                            >
+                                                {link.label} ↗
+                                            </a>
+                                        ))}
+                                    </div>
+                                ) : null}
+                            </div>
                         ))}
                     </div>
                 </div>
