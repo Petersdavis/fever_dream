@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import bestOfFestWatermark from '../assets/guelph_fringe/2026 BEST OF FEST - White.png';
 import bigBuzzWatermark from '../assets/guelph_fringe/2026 BIG BUZZ - White.png';
+import Image from '../components/Image';
 
 const FRINGE_POSTER_URL =
   'https://static.wixstatic.com/media/5bbf7f_0cc0f3f9100d4083b6dcbf17e6d4f046~mv2.png/v1/fill/w_581,h_320,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/Love%20So%20Far%20Poster%20-%201200x675_PNG.png';
@@ -19,7 +20,7 @@ const Fringe = () => {
                     <div className="fringe-content" style={{ display: 'flex', flexWrap: 'wrap', gap: '40px', marginTop: '40px', alignItems: 'center' }}>
                         
                         <div className="fringe-poster-column" style={{ flex: '1', minWidth: '300px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px' }}>
-                            <img 
+                            <Image 
                                 src={FRINGE_POSTER_URL} 
                                 alt="The Curse of Girl Night Poster" 
                                 style={{ width: '100%', maxWidth: '480px', borderRadius: '15px', border: '1px solid rgba(0, 191, 165, 0.4)', boxShadow: '0 10px 30px rgba(0, 0, 0, 0.4)', display: 'block' }} 
@@ -27,14 +28,14 @@ const Fringe = () => {
 
                             <div className="fringe-awards-showcase">
                                 <div className="fringe-laurel-card">
-                                    <img 
+                                    <Image 
                                         src={bestOfFestWatermark} 
                                         alt="2026 Best of Fest Winner - Guelph Fringe Festival" 
                                         className="fringe-laurel-img" 
                                     />
                                 </div>
                                 <div className="fringe-laurel-card">
-                                    <img 
+                                    <Image 
                                         src={bigBuzzWatermark} 
                                         alt="2026 Big Buzz Winner - Guelph Fringe Festival" 
                                         className="fringe-laurel-img" 

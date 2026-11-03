@@ -5,8 +5,10 @@
         "trailingSlash": false,
         "ignore": [
             "firebase.json",
+            "**/node_modules/**",
             "**/.*",
-            "**/node_modules/**"
+            "!**/.well-known",
+            "!**/.well-known/**"
         ],
         "redirects": [
             {
@@ -63,7 +65,7 @@
     },
     "functions": {
         "source": "functions",
-        "runtime": "nodejs20"
+        "runtime": "nodejs22"
     },
     "firestore": {
         "rules": "firestore.rules",

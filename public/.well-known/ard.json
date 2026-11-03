@@ -1,0 +1,21 @@
+{
+  "name": "Fever Dream Comedy",
+  "description": "Website and backend synchronization services for Fever Dream Comedy, built with React (Vite), Firebase Hosting, Cloud Functions, and Firestore.",
+  "llms_txt": "/llms.txt",
+  "documentation": [
+    "/README.md",
+    "/docs/tracking.md"
+  ],
+  "project": {
+    "frontend": "React + Vite",
+    "backend": "Firebase Cloud Functions",
+    "data": "Firestore",
+    "hosting": "Firebase Hosting"
+  },
+  "capabilities": [
+    "static site rendering",
+    "SEO-friendly prerendering",
+    "Eventbrite synchronization",
+    "analytics and conversion tracking"
+  ]
+}

@@ -6,6 +6,7 @@ import SubscribeBanner from '../components/SubscribeBanner';
 import ShowCard from '../components/ShowCard';
 import EventbriteCheckout from '../components/EventbriteCheckout';
 import { trackViewShow } from '../lib/tracking';
+import Image from '../components/Image';
 
 export default function ShowDetail() {
   const { slug } = useParams();
@@ -112,7 +113,7 @@ export default function ShowDetail() {
             <div className="show-detail-left-col">
               <div className="show-detail-poster-wrapper">
                 {event.posterUrl ? (
-                  <img
+                  <Image
                     src={event.posterUrl}
                     alt={event.title}
                     className="show-detail-poster"

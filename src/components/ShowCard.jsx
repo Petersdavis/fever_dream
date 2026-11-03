@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { slugifyEvent } from '../lib/slugs';
 import { trackTicketClick } from '../lib/tracking';
+import Image from './Image';
 
 export default function ShowCard({ event }) {
   const startDate = event.start ? new Date(event.start) : null;
@@ -25,7 +26,7 @@ export default function ShowCard({ event }) {
     <article className="show-card">
       <Link to={detailUrl} className="show-card-poster-wrapper" title={`View details for ${event.title}`}>
         {event.posterUrl ? (
-          <img
+          <Image
             src={event.posterUrl}
             alt={event.title}
             className="show-card-poster"

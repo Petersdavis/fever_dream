@@ -1,0 +1,38 @@
+# Fever Dream Comedy
+
+Fever Dream Comedy is a website and backend synchronization service for a comedy brand built with React, Vite, Firebase Hosting, Cloud Functions, and Firestore.
+
+## Primary goals
+
+- Present upcoming shows, comedian profiles, and booking information
+- Sync Eventbrite events and related assets into Firestore
+- Support SEO-friendly static prerendering for public pages
+- Track marketing conversions through a centralized consent-aware analytics layer
+
+## Core documentation
+
+- [`README.md`](README.md) — project overview, setup, deployment, and tracking guidance
+- [`docs/tracking.md`](docs/tracking.md) — analytics, GTM, consent, and conversion tracking contract
+
+## Key application areas
+
+- [`src/App.jsx`](src/App.jsx) — application shell and top-level composition
+- [`src/AppRoutes.jsx`](src/AppRoutes.jsx) — route definitions
+- [`src/pages/`](src/pages) — page-level views such as home, shows, book, services, and comedians
+- [`src/components/`](src/components) — shared UI and conversion components
+- [`src/lib/`](src/lib) — Firebase, Eventbrite, tracking, SEO, and support utilities
+- [`functions/index.js`](functions/index.js) — Cloud Functions for backend synchronization and automation
+
+## Build and deployment
+
+- Frontend build: `npm run build`
+- Local development: `npm run dev`
+- Hosting target: Firebase Hosting with static files served from `dist`
+- Backend target: Firebase Cloud Functions and Firestore
+
+## Notable integrations
+
+- Eventbrite event sync
+- Google Tag Manager
+- Meta Pixel loaded through GTM
+- Firebase Auth, Firestore, Hosting, and Cloud Functions
