@@ -1,8 +1,9 @@
 import avatarPlaceholder from '../assets/avatar-placeholder.svg';
 import reneeHeadshot from '../assets/headshots/renee_groux.jpg';
 import lindsayHeadshot from '../assets/headshots/lindsay_endersby.jpg';
-import theaHeadshot from '../assets/headshots/thea_rainford.jpeg';
-import kaitlinHeadshot from '../assets/headshots/kaitlin_shuvera.jpeg';
+import theaHeadshot from '../assets/headshots/thea_rainford.webp';
+import kaitlinHeadshot from '../assets/headshots/kaitlin_shuvera.webp';
+import meganHeadshot from '../assets/headshots/megan_mike.webp';
 
 const Comedians = () => {
     return (
@@ -74,11 +75,18 @@ const Comedians = () => {
                                     { label: "TikTok", href: "https://www.tiktok.com/@thea.the.kid" }
                                 ]
                             },
-                            {
+                        {
                                 name: "Kaitlin Shuvera",
                                 handle: "",
                                 image: kaitlinHeadshot,
                                 bio: "Kaitlin Shuvera has been displaying her dry wit and unique perspective on comedy stages across the country since REDACTED. She can be heard on CBC Radio’s LOL and The Debaters. She has appeared at the Halifax Pop explosion where she performed with Mark Little and opened for Eric Andre and has also opened for Debra Digiovanni. She was a finalist in the 2025 Sorry Comedy Festival Next Best Comic Competition and opened for Sophie Buddle and Allie Macofsky. She recently listened to Red Wine Supernova by Chappell Roan 27 times in a row.",
+                                links: []
+                            },
+                            {
+                                name: "Megan Myke",
+                                handle: "",
+                                image: meganHeadshot,
+                                bio: "Megan Myke started comedy back in 2010 in Toronto before taking a short hiatus to ruin her life with a nuclear family. Since 2022 she's been following in the footsteps of Stella and getting her groove back performing all over Ontario. Her comedy is dark, dirty, and educational as she discusses her journey through single-motherhood, unpacks societal norms, and sprinkles in some good old-fashioned silly willies. You'll laugh, you'll learn, you'll grimace and you'll love every second of it.",
                                 links: []
                             }
                         ].map((performer, index) => (
