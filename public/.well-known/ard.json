@@ -2,6 +2,18 @@
   "name": "Fever Dream Comedy",
   "description": "Website and backend synchronization services for Fever Dream Comedy, built with React (Vite), Firebase Hosting, Cloud Functions, and Firestore.",
   "llms_txt": "/llms.txt",
+  "entries": [
+    {
+      "name": "Project overview",
+      "uri": "/README.md",
+      "description": "Setup, deployment, and architecture notes for the project."
+    },
+    {
+      "name": "Tracking documentation",
+      "uri": "/docs/tracking.md",
+      "description": "Analytics, consent, and conversion tracking contract."
+    }
+  ],
   "documentation": [
     "/README.md",
     "/docs/tracking.md"
